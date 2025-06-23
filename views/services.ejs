@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <%- include('partials/navbar') %>
+  <main class="services-main">
+    <h1>Our Dental Services</h1>
+    <div class="services-list">
+      <div class="service-item">
+        <img src="/assets/icons/cleaning.svg" alt="Teeth Cleaning">
+        <h3>Teeth Cleaning</h3>
+        <p>Professional cleaning to remove plaque, tartar, and stains for a healthy smile.</p>
+      </div>
+      <div class="service-item">
+        <img src="/assets/icons/whitening.svg" alt="Teeth Whitening">
+        <h3>Teeth Whitening</h3>
+        <p>Safe and effective whitening treatments for a brighter, more confident smile.</p>
+      </div>
+      <div class="service-item">
+        <img src="/assets/icons/implant.svg" alt="Dental Implants">
+        <h3>Dental Implants</h3>
+        <p>Permanent solutions for missing teeth with natural look and function.</p>
+      </div>
+      <div class="service-item">
+        <img src="/assets/icons/child.svg" alt="Pediatric Dentistry">
+        <h3>Pediatric Dentistry</h3>
+        <p>Gentle, friendly care for children to ensure lifelong dental health.</p>
+      </div>
+      <div class="service-item">
+        <img src="/assets/icons/braces.svg" alt="Orthodontics">
+        <h3>Orthodontics</h3>
+        <p>Braces and aligners to straighten teeth and improve bite.</p>
+      </div>
+      <div class="service-item">
+        <img src="/assets/icons/emergency.svg" alt="Emergency Care">
+        <h3>Emergency Care</h3>
+        <p>Prompt treatment for dental emergencies and urgent care needs.</p>
+      </div>
+    </div>
+    <section class="services-cta">
+      <h2>Not sure what you need?</h2>
+      <a href="/contact" class="cta-btn">Contact Us for a Consultation</a>
+    </section>
+  </main>
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+</body>
+</html> 

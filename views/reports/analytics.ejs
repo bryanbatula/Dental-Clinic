@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics & Reports | Clinic Management</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+      <!-- Enhanced User Profile Section -->
+      <div class="dashboard-user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <div class="user-details">
+          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <p class="user-role">Clinic Administrator</p>
+          <div class="user-status">
+            <span class="status-indicator active"></span>
+            <span class="status-text">Online</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Navigation -->
+      <nav class="dashboard-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="/dashboard" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Management</span>
+          <a href="/clients" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span class="nav-text">Clients</span>
+          </a>
+          <a href="/appointments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="far fa-calendar-alt"></i>
+            </div>
+            <span class="nav-text">Appointments</span>
+          </a>
+          <a href="/appointments/calendar" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-calendar-week"></i>
+            </div>
+            <span class="nav-text">Calendar</span>
+          </a>
+          <a href="/services/manage" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-tooth"></i>
+            </div>
+            <span class="nav-text">Services</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Tools</span>
+          <a href="/reminders" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-bell"></i>
+            </div>
+            <span class="nav-text">Reminders</span>
+          </a>
+          <a href="/reports" class="dashboard-nav-item active">
+            <div class="nav-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+      </nav>
+      
+      <!-- Enhanced Logout Section -->
+      <div class="dashboard-logout">
+        <a href="/logout" class="dashboard-logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
+      <!-- Enhanced Header with Breadcrumb -->
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="breadcrumb">
+            <span class="breadcrumb-item">Clinic</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item current">Analytics</span>
+          </div>
+          <h1 class="dashboard-title">
+            <i class="fas fa-chart-line title-icon"></i>
+            Analytics & Reports
+          </h1>
+          <p class="dashboard-subtitle">Comprehensive insights and performance monitoring for your clinic</p>
+        </div>
+        <div class="header-actions">
+          <div class="current-time" id="currentTime">
+            <i class="far fa-clock"></i>
+            <span></span>
+          </div>
+          <div class="action-buttons">
+            <button id="refreshBtn" class="dashboard-btn secondary">
+              <i class="fas fa-sync-alt"></i>
+              <span>Refresh</span>
+            </button>
+            <button id="exportBtn" class="dashboard-btn primary">
+              <i class="fas fa-download"></i>
+              <span>Export Report</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Enhanced Controls Section -->
+      <section class="analytics-controls-section">
+        <div class="analytics-controls">
+          <div class="controls-header">
+            <h2 class="section-title">
+              <i class="fas fa-filter"></i>
+              Data Filters
+            </h2>
+            <p class="section-subtitle">Customize your analytics view and time range</p>
+          </div>
+          
+          <div class="controls-content">
+            <div class="time-filters">
+              <div class="filter-group">
+                <label for="timePeriod" class="filter-label">
+                  <i class="fas fa-calendar-alt"></i>
+                  Time Period
+                </label>
+                <div class="select-wrapper">
+                  <select id="timePeriod" class="time-filter enhanced">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 3 months</option>
+                    <option value="365">Last year</option>
+                  </select>
+                  <i class="fas fa-chevron-down select-icon"></i>
+                </div>
+              </div>
+              
+              <div class="filter-group">
+                <label for="chartType" class="filter-label">
+                  <i class="fas fa-chart-bar"></i>
+                  Chart Type
+                </label>
+                <div class="select-wrapper">
+                  <select id="chartType" class="chart-filter enhanced">
+                    <option value="daily">Daily View</option>
+                    <option value="weekly">Weekly View</option>
+                    <option value="monthly">Monthly View</option>
+                  </select>
+                  <i class="fas fa-chevron-down select-icon"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="controls-status">
+              <div class="status-item">
+                <i class="fas fa-database"></i>
+                <span>Data Updated: <strong id="lastUpdate">Loading...</strong></span>
+              </div>
+              <div class="status-item">
+                <i class="fas fa-chart-area"></i>
+                <span>Charts: <strong id="chartCount">6 Active</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alert Section -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <section class="alert-section">
+          <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><%= error %></span>
+          </div>
+        </section>
+      <% } %>
+
+      <!-- Enhanced Key Metrics Section -->
+      <section class="metrics-overview-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-tachometer-alt"></i>
+            Key Performance Indicators
+          </h2>
+          <p class="section-subtitle">Essential metrics for monitoring your clinic's performance</p>
+        </div>
+        
+        <div class="metrics-grid" id="metricsGrid">
+          <!-- Loading state -->
+          <div class="loading-state metrics-loading">
+            <div class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p>Loading key metrics...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enhanced Charts Section -->
+      <section class="charts-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-chart-area"></i>
+            Performance Analytics
+          </h2>
+          <p class="section-subtitle">Visual representation of your clinic's data trends and patterns</p>
+        </div>
+        
+        <div class="charts-grid">
+          <!-- Appointments Chart -->
+          <div class="chart-container enhanced">
+            <div class="chart-header">
+              <div class="chart-title-section">
+                <h3>
+                  <i class="fas fa-calendar-check"></i>
+                  Appointment Trends
+                </h3>
+                <p class="chart-description">Track appointment patterns over time</p>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-item completed">
+                  <span class="legend-color"></span>
+                  <span>Completed</span>
+                </span>
+                <span class="legend-item cancelled">
+                  <span class="legend-color"></span>
+                  <span>Cancelled</span>
+                </span>
+                <span class="legend-item scheduled">
+                  <span class="legend-color"></span>
+                  <span>Scheduled</span>
+                </span>
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="appointmentsChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Revenue Chart -->
+          <div class="chart-container enhanced">
+            <div class="chart-header">
+              <div class="chart-title-section">
+                <h3>
+                  <i class="fas fa-dollar-sign"></i>
+                  Revenue Analytics
+                </h3>
+                <p class="chart-description">Monitor financial performance</p>
+              </div>
+              <div class="chart-stats">
+                <div class="stat-item">
+                  <span class="stat-value" id="revenueTotal">$0</span>
+                  <span class="stat-label">Total Revenue</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Services Chart -->
+          <div class="chart-container enhanced">
+            <div class="chart-header">
+              <div class="chart-title-section">
+                <h3>
+                  <i class="fas fa-tooth"></i>
+                  Popular Services
+                </h3>
+                <p class="chart-description">Service popularity and revenue</p>
+              </div>
+              <div class="chart-toggle">
+                <button class="toggle-btn active" data-view="bookings">
+                  <i class="fas fa-calendar"></i>
+                  Bookings
+                </button>
+                <button class="toggle-btn" data-view="revenue">
+                  <i class="fas fa-dollar-sign"></i>
+                  Revenue
+                </button>
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="servicesChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Performance Chart -->
+          <div class="chart-container enhanced">
+            <div class="chart-header">
+              <div class="chart-title-section">
+                <h3>
+                  <i class="fas fa-chart-radar"></i>
+                  Performance Metrics
+                </h3>
+                <p class="chart-description">Overall clinic performance radar</p>
+              </div>
+              <div class="performance-indicators">
+                <div class="indicator">
+                  <span class="indicator-value" id="completionRate">--</span>
+                  <span class="indicator-label">Completion</span>
+                </div>
+                <div class="indicator">
+                  <span class="indicator-value" id="cancellationRate">--</span>
+                  <span class="indicator-label">Cancellation</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="performanceChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enhanced Insights Section -->
+      <section class="insights-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-lightbulb"></i>
+            Business Insights
+          </h2>
+          <p class="section-subtitle">AI-powered insights and recommendations for your clinic</p>
+        </div>
+        
+        <div class="insights-grid">
+          <!-- Client Analytics -->
+          <div class="insight-card enhanced">
+            <div class="insight-header">
+              <div class="insight-title">
+                <h3>
+                  <i class="fas fa-users"></i>
+                  Client Analytics
+                </h3>
+                <p>Patient demographics and behavior</p>
+              </div>
+              <div class="insight-status">
+                <span class="status-indicator positive"></span>
+              </div>
+            </div>
+            <div class="insight-content" id="clientInsights">
+              <div class="insights-stats">
+                <div class="insight-stat">
+                  <span class="stat-value" id="newClients">--</span>
+                  <span class="stat-label">New Clients</span>
+                </div>
+                <div class="insight-stat">
+                  <span class="stat-value" id="returningClients">--</span>
+                  <span class="stat-label">Returning Clients</span>
+                </div>
+              </div>
+              <div class="top-clients" id="topClients">
+                <!-- Top clients will be loaded here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Peak Hours -->
+          <div class="insight-card enhanced">
+            <div class="insight-header">
+              <div class="insight-title">
+                <h3>
+                  <i class="fas fa-clock"></i>
+                  Peak Hours
+                </h3>
+                <p>Busiest times and capacity utilization</p>
+              </div>
+              <div class="insight-status">
+                <span class="status-indicator neutral"></span>
+              </div>
+            </div>
+            <div class="insight-content" id="peakHours">
+              <!-- Peak hours will be loaded here -->
+            </div>
+          </div>
+
+          <!-- Service Categories -->
+          <div class="insight-card enhanced">
+            <div class="insight-header">
+              <div class="insight-title">
+                <h3>
+                  <i class="fas fa-layer-group"></i>
+                  Service Categories
+                </h3>
+                <p>Category performance breakdown</p>
+              </div>
+              <div class="insight-status">
+                <span class="status-indicator positive"></span>
+              </div>
+            </div>
+            <div class="insight-content">
+              <div class="chart-wrapper small">
+                <canvas id="categoriesChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommendations -->
+          <div class="insight-card enhanced recommendations">
+            <div class="insight-header">
+              <div class="insight-title">
+                <h3>
+                  <i class="fas fa-brain"></i>
+                  AI Recommendations
+                </h3>
+                <p>Smart suggestions for improvement</p>
+              </div>
+              <div class="insight-status">
+                <span class="status-indicator ai"></span>
+              </div>
+            </div>
+            <div class="insight-content" id="recommendations">
+              <!-- AI-powered recommendations will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enhanced Report Generation Section -->
+      <section class="reports-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-file-alt"></i>
+            Custom Report Generator
+          </h2>
+          <p class="section-subtitle">Create detailed reports with custom parameters and formats</p>
+        </div>
+        
+        <div class="report-generator-container">
+          <div class="report-generator enhanced">
+            <form id="reportForm" class="report-form">
+              <!-- Report Configuration Card -->
+              <div class="form-card">
+                <div class="form-card-header">
+                  <h3>
+                    <i class="fas fa-cog"></i>
+                    Report Configuration
+                  </h3>
+                  <p>Define the scope and content of your report</p>
+                </div>
+                
+                <div class="form-card-content">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="reportType" class="form-label">
+                        <i class="fas fa-file-alt"></i>
+                        Report Type
+                      </label>
+                      <div class="select-wrapper">
+                        <select id="reportType" name="reportType" class="form-select">
+                          <option value="appointments">📅 Appointments Report</option>
+                          <option value="revenue">💰 Revenue Report</option>
+                          <option value="clients">👥 Client Report</option>
+                          <option value="services">🦷 Services Report</option>
+                          <option value="performance">📊 Performance Report</option>
+                        </select>
+                        <i class="fas fa-chevron-down select-icon"></i>
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="reportFormat" class="form-label">
+                        <i class="fas fa-download"></i>
+                        Export Format
+                      </label>
+                      <div class="select-wrapper">
+                        <select id="reportFormat" name="reportFormat" class="form-select">
+                          <option value="pdf">📄 PDF Document</option>
+                          <option value="excel">📊 Excel Spreadsheet</option>
+                          <option value="csv">📋 CSV File</option>
+                        </select>
+                        <i class="fas fa-chevron-down select-icon"></i>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="dateFrom" class="form-label">
+                        <i class="fas fa-calendar-alt"></i>
+                        Start Date
+                      </label>
+                      <input type="date" id="dateFrom" name="dateFrom" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="dateTo" class="form-label">
+                        <i class="fas fa-calendar-check"></i>
+                        End Date
+                      </label>
+                      <input type="date" id="dateTo" name="dateTo" class="form-input">
+                    </div>
+                  </div>
+                  
+                  <div class="form-group checkbox-group">
+                    <label class="checkbox-label enhanced">
+                      <input type="checkbox" id="includeCharts" name="includeCharts" checked>
+                      <span class="checkbox-custom"></span>
+                      <div class="checkbox-content">
+                        <span class="checkbox-title">
+                          <i class="fas fa-chart-pie"></i>
+                          Include Visual Charts
+                        </span>
+                        <span class="checkbox-description">Add charts and graphs to the report for better visualization</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Report Preview Card -->
+              <div class="form-card">
+                <div class="form-card-header">
+                  <h3>
+                    <i class="fas fa-eye"></i>
+                    Report Preview
+                  </h3>
+                  <p>Preview of what will be included in your report</p>
+                </div>
+                
+                <div class="form-card-content">
+                  <div class="report-preview" id="reportPreview">
+                    <div class="preview-item">
+                      <i class="fas fa-calendar"></i>
+                      <span>Date Range: <strong id="previewDateRange">Select dates</strong></span>
+                    </div>
+                    <div class="preview-item">
+                      <i class="fas fa-file"></i>
+                      <span>Report Type: <strong id="previewType">Appointments Report</strong></span>
+                    </div>
+                    <div class="preview-item">
+                      <i class="fas fa-download"></i>
+                      <span>Format: <strong id="previewFormat">PDF Document</strong></span>
+                    </div>
+                    <div class="preview-item">
+                      <i class="fas fa-chart-bar"></i>
+                      <span>Charts: <strong id="previewCharts">Included</strong></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Form Actions -->
+              <div class="form-actions enhanced">
+                <button type="submit" class="dashboard-btn primary large" id="generateReportBtn">
+                  <i class="fas fa-magic"></i>
+                  <span>Generate Report</span>
+                  <div class="btn-loading hidden">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </div>
+                </button>
+                <button type="button" class="dashboard-btn secondary large" id="previewReportBtn">
+                  <i class="fas fa-eye"></i>
+                  <span>Preview Report</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Enhanced JavaScript -->
+  <script src="/js/analytics.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update current time
+      function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        const timeElement = document.querySelector('#currentTime span');
+        if (timeElement) {
+          timeElement.textContent = timeString;
+        }
+      }
+      
+      updateTime();
+      setInterval(updateTime, 60000);
+
+      // Update last update time
+      function updateLastUpdate() {
+        const now = new Date();
+        const updateString = now.toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        const lastUpdateElement = document.getElementById('lastUpdate');
+        if (lastUpdateElement) {
+          lastUpdateElement.textContent = updateString;
+        }
+      }
+      
+      updateLastUpdate();
+
+      // Initialize analytics with enhanced features
+      initializeAnalytics();
+
+      // Enhanced report form preview
+      const reportForm = document.getElementById('reportForm');
+      const reportTypeSelect = document.getElementById('reportType');
+      const reportFormatSelect = document.getElementById('reportFormat');
+      const dateFromInput = document.getElementById('dateFrom');
+      const dateToInput = document.getElementById('dateTo');
+      const includeChartsCheckbox = document.getElementById('includeCharts');
+      
+      function updateReportPreview() {
+        const type = reportTypeSelect.options[reportTypeSelect.selectedIndex].text;
+        const format = reportFormatSelect.options[reportFormatSelect.selectedIndex].text;
+        const dateFrom = dateFromInput.value;
+        const dateTo = dateToInput.value;
+        const includeCharts = includeChartsCheckbox.checked;
+        
+        document.getElementById('previewType').textContent = type;
+        document.getElementById('previewFormat').textContent = format;
+        document.getElementById('previewCharts').textContent = includeCharts ? 'Included' : 'Text Only';
+        
+        if (dateFrom && dateTo) {
+          const fromDate = new Date(dateFrom).toLocaleDateString();
+          const toDate = new Date(dateTo).toLocaleDateString();
+          document.getElementById('previewDateRange').textContent = `${fromDate} - ${toDate}`;
+        } else {
+          document.getElementById('previewDateRange').textContent = 'Select dates';
+        }
+      }
+      
+      [reportTypeSelect, reportFormatSelect, dateFromInput, dateToInput, includeChartsCheckbox].forEach(element => {
+        element.addEventListener('change', updateReportPreview);
+      });
+
+      // Enhanced form submission
+      reportForm.addEventListener('submit', function(e) {
+        const generateBtn = document.getElementById('generateReportBtn');
+        const btnText = generateBtn.querySelector('span');
+        const btnLoading = generateBtn.querySelector('.btn-loading');
+        
+        generateBtn.disabled = true;
+        btnText.style.opacity = '0';
+        btnLoading.classList.remove('hidden');
+        
+        // Reset after animation
+        setTimeout(() => {
+          generateBtn.disabled = false;
+          btnText.style.opacity = '1';
+          btnLoading.classList.add('hidden');
+        }, 3000);
+      });
+
+      // Preview report functionality
+      const previewBtn = document.getElementById('previewReportBtn');
+      if (previewBtn) {
+        previewBtn.addEventListener('click', function() {
+          // Mock preview functionality
+          alert('Report preview would open in a new window');
+        });
+      }
+
+      // Add entrance animations
+      const sections = document.querySelectorAll('.analytics-controls-section, .metrics-overview-section, .charts-section, .insights-section, .reports-section');
+      sections.forEach((section, index) => {
+        section.style.animation = `slideInUp 0.6s ease-out ${index * 0.1}s both`;
+      });
+
+      // Enhanced chart loading animation
+      const chartContainers = document.querySelectorAll('.chart-container');
+      chartContainers.forEach((container, index) => {
+        container.style.animation = `slideInUp 0.6s ease-out ${(index + 2) * 0.1}s both`;
+      });
+
+      // Initialize preview
+      updateReportPreview();
+    });
+  </script>
+</body>
+</html> 

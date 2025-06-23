@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reminder Management | Clinic Management</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+      <!-- Enhanced User Profile Section -->
+      <div class="dashboard-user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <div class="user-details">
+          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <p class="user-role">Clinic Administrator</p>
+          <div class="user-status">
+            <span class="status-indicator active"></span>
+            <span class="status-text">Online</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Navigation -->
+      <nav class="dashboard-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+        <a href="/dashboard" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <span class="nav-text">Dashboard</span>
+        </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Management</span>
+        <a href="/clients" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span class="nav-text">Clients</span>
+        </a>
+        <a href="/appointments" class="dashboard-nav-item">
+            <div class="nav-icon">
+          <i class="far fa-calendar-alt"></i>
+            </div>
+            <span class="nav-text">Appointments</span>
+        </a>
+        <a href="/appointments/calendar" class="dashboard-nav-item">
+            <div class="nav-icon">
+          <i class="fas fa-calendar-week"></i>
+            </div>
+            <span class="nav-text">Calendar</span>
+        </a>
+        <a href="/services/manage" class="dashboard-nav-item">
+            <div class="nav-icon">
+          <i class="fas fa-tooth"></i>
+            </div>
+            <span class="nav-text">Services</span>
+        </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Tools</span>
+        <a href="/reminders" class="dashboard-nav-item active">
+            <div class="nav-icon">
+          <i class="fas fa-bell"></i>
+            </div>
+            <span class="nav-text">Reminders</span>
+        </a>
+        <a href="/reports" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="nav-text">Analytics</span>
+        </a>
+        </div>
+      </nav>
+      
+      <!-- Enhanced Logout Section -->
+      <div class="dashboard-logout">
+        <a href="/logout" class="dashboard-logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
+      <!-- Enhanced Header with Breadcrumb -->
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="breadcrumb">
+            <span class="breadcrumb-item">Clinic</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item current">Reminders</span>
+          </div>
+          <h1 class="dashboard-title">
+            <i class="fas fa-bell title-icon"></i>
+            Reminder Management
+          </h1>
+          <p class="dashboard-subtitle">Automated appointment reminders and notification management</p>
+        </div>
+        <div class="header-actions">
+          <div class="current-time" id="currentTime">
+            <i class="far fa-clock"></i>
+            <span></span>
+          </div>
+          <div class="action-buttons">
+            <button id="sendAllBtn" class="dashboard-btn primary">
+              <i class="fas fa-paper-plane"></i>
+              <span>Send All Due</span>
+            </button>
+            <button id="bulkScheduleBtn" class="dashboard-btn secondary">
+              <i class="fas fa-clock"></i>
+              <span>Bulk Schedule</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Enhanced Statistics Section -->
+      <section class="reminders-stats-section">
+        <div class="reminders-stats">
+          <div class="stat-card upcoming">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-content">
+            <div class="stat-value" id="upcomingCount">0</div>
+            <div class="stat-label">Upcoming Appointments</div>
+              <div class="stat-trend">
+                <i class="fas fa-arrow-up"></i>
+                <span>This week</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card pending">
+            <div class="stat-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+            <div class="stat-value" id="pendingReminders">0</div>
+            <div class="stat-label">Pending Reminders</div>
+              <div class="stat-trend">
+                <i class="fas fa-clock"></i>
+                <span>Need attention</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card sent">
+            <div class="stat-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+            <div class="stat-value" id="sentToday">0</div>
+            <div class="stat-label">Sent Today</div>
+              <div class="stat-trend">
+                <i class="fas fa-calendar-day"></i>
+                <span>Today's total</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alert Section -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <section class="alert-section">
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><%= error %></span>
+        </div>
+        </section>
+      <% } %>
+
+      <!-- Enhanced Tabs Section -->
+      <section class="reminders-tabs-section">
+      <div class="reminders-tabs">
+        <button class="tab-btn active" data-tab="appointments">
+            <div class="tab-icon">
+          <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="tab-content">
+              <span class="tab-title">Upcoming Appointments</span>
+              <span class="tab-subtitle">Manage reminders</span>
+            </div>
+        </button>
+        <button class="tab-btn" data-tab="settings">
+            <div class="tab-icon">
+          <i class="fas fa-cog"></i>
+            </div>
+            <div class="tab-content">
+              <span class="tab-title">Settings</span>
+              <span class="tab-subtitle">Configure preferences</span>
+            </div>
+        </button>
+        <button class="tab-btn" data-tab="history">
+            <div class="tab-icon">
+          <i class="fas fa-history"></i>
+            </div>
+            <div class="tab-content">
+              <span class="tab-title">History</span>
+              <span class="tab-subtitle">View sent reminders</span>
+            </div>
+        </button>
+      </div>
+      </section>
+
+      <!-- Tab Content Sections -->
+      <section class="tab-content-section">
+      <!-- Upcoming Appointments Tab -->
+      <div class="tab-content active" id="appointmentsTab">
+          <div class="tab-header">
+            <h2 class="section-title">
+              <i class="fas fa-calendar-check"></i>
+              Upcoming Appointments
+            </h2>
+            <p class="section-subtitle">Send reminders to patients for their upcoming appointments</p>
+          </div>
+          
+        <div class="reminders-container">
+          <div class="appointments-grid" id="appointmentsGrid">
+              <!-- Loading state -->
+              <div class="loading-state">
+                <div class="loading-spinner">
+                  <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <p>Loading appointments...</p>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-content" id="settingsTab">
+          <div class="tab-header">
+            <h2 class="section-title">
+              <i class="fas fa-cog"></i>
+              Reminder Settings
+            </h2>
+            <p class="section-subtitle">Configure notification preferences and automation settings</p>
+          </div>
+          
+        <div class="settings-container">
+            <form id="reminderSettingsForm" class="settings-form enhanced">
+              <!-- Notification Methods Card -->
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <h3>
+                    <i class="fas fa-bell"></i>
+                    Notification Methods
+                  </h3>
+                  <p>Choose how to send reminders to patients</p>
+                </div>
+                <div class="settings-card-content">
+              <div class="form-group">
+                    <label class="checkbox-label enhanced">
+                  <input type="checkbox" id="emailEnabled" name="emailEnabled">
+                  <span class="checkbox-custom"></span>
+                      <div class="checkbox-content">
+                        <span class="checkbox-title">
+                          <i class="fas fa-envelope"></i>
+                  Email Reminders
+                        </span>
+                        <span class="checkbox-description">Send reminders via email with appointment details</span>
+                      </div>
+                </label>
+              </div>
+              <div class="form-group">
+                    <label class="checkbox-label enhanced">
+                  <input type="checkbox" id="smsEnabled" name="smsEnabled">
+                  <span class="checkbox-custom"></span>
+                      <div class="checkbox-content">
+                        <span class="checkbox-title">
+                          <i class="fas fa-sms"></i>
+                  SMS Reminders
+                        </span>
+                        <span class="checkbox-description">Send quick text message reminders</span>
+                      </div>
+                </label>
+                  </div>
+              </div>
+            </div>
+
+              <!-- Default Timing Card -->
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <h3>
+                    <i class="fas fa-clock"></i>
+                    Default Timing
+                  </h3>
+                  <p>Set when reminders should be sent automatically</p>
+                </div>
+                <div class="settings-card-content">
+              <div class="form-row">
+                <div class="form-group">
+                      <label for="defaultDaysBefore" class="form-label">
+                        <i class="fas fa-calendar-alt"></i>
+                        Days Before Appointment
+                      </label>
+                      <div class="select-wrapper">
+                        <select id="defaultDaysBefore" name="defaultDaysBefore" class="form-select">
+                    <option value="0">Same day</option>
+                    <option value="1">1 day before</option>
+                    <option value="2">2 days before</option>
+                    <option value="3">3 days before</option>
+                    <option value="7">1 week before</option>
+                  </select>
+                        <i class="fas fa-chevron-down select-icon"></i>
+                      </div>
+                </div>
+                <div class="form-group">
+                      <label for="defaultHoursBefore" class="form-label">
+                        <i class="fas fa-clock"></i>
+                        Hours Before Appointment
+                      </label>
+                      <div class="select-wrapper">
+                        <select id="defaultHoursBefore" name="defaultHoursBefore" class="form-select">
+                    <option value="2">2 hours</option>
+                    <option value="4">4 hours</option>
+                    <option value="12">12 hours</option>
+                    <option value="24">24 hours</option>
+                  </select>
+                        <i class="fas fa-chevron-down select-icon"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Business Hours Card -->
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <h3>
+                    <i class="fas fa-business-time"></i>
+                    Business Hours
+                  </h3>
+                  <p>Define when reminders can be sent to patients</p>
+            </div>
+                <div class="settings-card-content">
+              <div class="form-row">
+                <div class="form-group">
+                      <label for="businessStart" class="form-label">
+                        <i class="fas fa-sun"></i>
+                        Start Time
+                      </label>
+                      <input type="time" id="businessStart" name="businessStart" class="form-input">
+                </div>
+                <div class="form-group">
+                      <label for="businessEnd" class="form-label">
+                        <i class="fas fa-moon"></i>
+                        End Time
+                      </label>
+                      <input type="time" id="businessEnd" name="businessEnd" class="form-input">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Automation Card -->
+              <div class="settings-card">
+                <div class="settings-card-header">
+                  <h3>
+                    <i class="fas fa-robot"></i>
+                    Automation
+                  </h3>
+                  <p>Enable automatic reminder sending based on your preferences</p>
+            </div>
+                <div class="settings-card-content">
+              <div class="form-group">
+                    <label class="checkbox-label enhanced">
+                  <input type="checkbox" id="autoSend" name="autoSend">
+                  <span class="checkbox-custom"></span>
+                      <div class="checkbox-content">
+                        <span class="checkbox-title">
+                          <i class="fas fa-magic"></i>
+                  Automatically send reminders
+                        </span>
+                        <span class="checkbox-description">Send reminders automatically based on timing settings</span>
+                      </div>
+                </label>
+                  </div>
+              </div>
+            </div>
+
+              <!-- Form Actions -->
+              <div class="form-actions enhanced">
+                <button type="submit" class="dashboard-btn primary large">
+                  <i class="fas fa-save"></i>
+                  <span>Save Settings</span>
+                </button>
+                <button type="button" class="dashboard-btn secondary large" id="resetSettings">
+                  <i class="fas fa-undo"></i>
+                  <span>Reset to Default</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- History Tab -->
+      <div class="tab-content" id="historyTab">
+          <div class="tab-header">
+            <h2 class="section-title">
+              <i class="fas fa-history"></i>
+              Reminder History
+            </h2>
+            <p class="section-subtitle">Track all sent reminders and their delivery status</p>
+          </div>
+          
+        <div class="history-container">
+            <div class="history-controls">
+          <div class="history-filters">
+                <div class="filter-group">
+                  <label for="historyFilter" class="filter-label">
+                    <i class="fas fa-filter"></i>
+                    Filter by Type
+                  </label>
+                  <div class="select-wrapper">
+            <select id="historyFilter" class="filter-select">
+              <option value="all">All Reminders</option>
+              <option value="email">Email Only</option>
+              <option value="sms">SMS Only</option>
+              <option value="sent">Sent</option>
+              <option value="failed">Failed</option>
+            </select>
+                    <i class="fas fa-chevron-down select-icon"></i>
+                  </div>
+                </div>
+                <div class="filter-group">
+                  <label for="dateFilter" class="filter-label">
+                    <i class="fas fa-calendar"></i>
+                    Filter by Date
+                  </label>
+            <input type="date" id="dateFilter" class="date-filter">
+          </div>
+              </div>
+              
+              <div class="history-stats">
+                <div class="history-stat-item">
+                  <span class="stat-label">Total:</span>
+                  <span class="stat-value" id="totalHistory">0</span>
+                </div>
+                <div class="history-stat-item">
+                  <span class="stat-label">Success Rate:</span>
+                  <span class="stat-value" id="successRate">0%</span>
+          </div>
+        </div>
+      </div>
+
+            <div class="history-list" id="historyList">
+              <!-- Loading state -->
+              <div class="loading-state">
+                <div class="loading-spinner">
+                  <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <p>Loading history...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enhanced Modals -->
+      <!-- Send Reminder Modal -->
+      <div id="reminderModal" class="modal-overlay hidden">
+        <div class="modal-content reminder-modal">
+          <div class="modal-header">
+            <div class="modal-title-section">
+            <h3>Send Reminder</h3>
+              <p>Send an immediate reminder to the patient</p>
+            </div>
+            <button onclick="hideReminderModal()" class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="reminderModalContent" class="reminder-modal-content">
+            <!-- Reminder form will be loaded here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Reminder Modal -->
+      <div id="scheduleModal" class="modal-overlay hidden">
+        <div class="modal-content schedule-modal">
+          <div class="modal-header">
+            <div class="modal-title-section">
+            <h3>Schedule Reminder</h3>
+              <p>Schedule a reminder to be sent automatically</p>
+            </div>
+            <button onclick="hideScheduleModal()" class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="scheduleModalContent" class="schedule-modal-content">
+            <!-- Schedule form will be loaded here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Bulk Actions Modal -->
+      <div id="bulkModal" class="modal-overlay hidden">
+        <div class="modal-content bulk-modal">
+          <div class="modal-header">
+            <div class="modal-title-section">
+            <h3>Bulk Schedule Reminders</h3>
+              <p>Schedule reminders for all upcoming appointments at once</p>
+            </div>
+            <button onclick="hideBulkModal()" class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="bulk-modal-content">
+            <div class="bulk-info">
+              <div class="bulk-stat">
+                <i class="fas fa-calendar-check"></i>
+                <span>Appointments to process: <strong id="bulkAppointmentCount">0</strong></span>
+              </div>
+            </div>
+            
+            <div class="bulk-form">
+              <div class="form-group">
+                <label for="bulkType" class="form-label">
+                  <i class="fas fa-bell"></i>
+                  Reminder Type
+                </label>
+                <div class="select-wrapper">
+                  <select id="bulkType" class="form-select">
+                    <option value="email">Email Only</option>
+                    <option value="sms">SMS Only</option>
+                    <option value="both">Both Email & SMS</option>
+                  </select>
+                  <i class="fas fa-chevron-down select-icon"></i>
+                </div>
+              </div>
+              
+            <div class="form-group">
+                <label for="bulkTiming" class="form-label">
+                  <i class="fas fa-clock"></i>
+                  Send Before Appointment
+                </label>
+                <div class="select-wrapper">
+                  <select id="bulkTiming" class="form-select">
+                    <option value="24">24 hours before</option>
+                    <option value="12">12 hours before</option>
+                    <option value="4">4 hours before</option>
+                    <option value="2">2 hours before</option>
+              </select>
+                  <i class="fas fa-chevron-down select-icon"></i>
+                </div>
+              </div>
+            </div>
+            
+            <div class="modal-actions">
+              <button onclick="hideBulkModal()" class="dashboard-btn secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+              </button>
+              <button onclick="confirmBulkSchedule()" class="dashboard-btn primary">
+                <i class="fas fa-paper-plane"></i>
+                Schedule All Reminders
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Enhanced JavaScript -->
+  <script src="/js/reminders.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update current time
+      function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        const timeElement = document.querySelector('#currentTime span');
+        if (timeElement) {
+          timeElement.textContent = timeString;
+        }
+      }
+      
+      updateTime();
+      setInterval(updateTime, 60000);
+
+      // Initialize reminders with enhanced features
+      initializeReminders();
+
+      // Add entrance animations
+      const sections = document.querySelectorAll('.reminders-stats-section, .reminders-tabs-section, .tab-content-section');
+      sections.forEach((section, index) => {
+        section.style.animation = `slideInUp 0.6s ease-out ${index * 0.1}s both`;
+      });
+
+      // Enhanced tab switching with animations
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const tabName = this.dataset.tab;
+          
+          // Add loading state during tab switch
+          const tabContent = document.getElementById(`${tabName}Tab`);
+          if (tabContent) {
+            tabContent.style.opacity = '0';
+            setTimeout(() => {
+              tabContent.style.opacity = '1';
+            }, 150);
+          }
+        });
+      });
+
+      // Enhanced settings form
+      const settingsForm = document.getElementById('reminderSettingsForm');
+      const resetBtn = document.getElementById('resetSettings');
+      
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          if (confirm('Are you sure you want to reset all settings to default values?')) {
+            settingsForm.reset();
+            // Trigger change events to update UI
+            const event = new Event('change', { bubbles: true });
+            settingsForm.dispatchEvent(event);
+          }
+        });
+      }
+
+      // Close modals on escape key
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          hideReminderModal();
+          hideScheduleModal();
+          hideBulkModal();
+        }
+      });
+
+      // Close modals on background click
+      ['reminderModal', 'scheduleModal', 'bulkModal'].forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.addEventListener('click', function(event) {
+            if (event.target === this) {
+              this.classList.add('hidden');
+            }
+          });
+        }
+      });
+
+      // Update bulk appointment count
+      function updateBulkCount() {
+        const count = document.querySelectorAll('.appointment-reminder-card').length;
+        const bulkCountElement = document.getElementById('bulkAppointmentCount');
+        if (bulkCountElement) {
+          bulkCountElement.textContent = count;
+        }
+      }
+
+      // Update bulk count when appointments load
+      const observer = new MutationObserver(updateBulkCount);
+      const appointmentsGrid = document.getElementById('appointmentsGrid');
+      if (appointmentsGrid) {
+        observer.observe(appointmentsGrid, { childList: true, subtree: true });
+      }
+    });
+
+    // Enhanced modal functions
+    function hideReminderModal() {
+      const modal = document.getElementById('reminderModal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function hideScheduleModal() {
+      const modal = document.getElementById('scheduleModal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function hideBulkModal() {
+      const modal = document.getElementById('bulkModal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function confirmBulkSchedule() {
+      const type = document.getElementById('bulkType').value;
+      const timing = document.getElementById('bulkTiming').value;
+      
+      // Show loading state
+      const submitBtn = event.target;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      submitBtn.disabled = true;
+      
+      // Call the original function
+      if (typeof window.confirmBulkSchedule === 'function') {
+        window.confirmBulkSchedule();
+      }
+      
+      setTimeout(() => {
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Schedule All Reminders';
+        submitBtn.disabled = false;
+        hideBulkModal();
+      }, 2000);
+    }
+  </script>
+</body>
+</html> 

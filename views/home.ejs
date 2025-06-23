@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <%- include('partials/navbar', { user: typeof user !== 'undefined' ? user : null }) %>
+  <header class="hero">
+    <div class="hero-content">
+      <img src="/assets/icons/tooth.svg" alt="Clinic Logo" class="hero-logo">
+      <h1>Welcome to SmileBright Dental Clinic</h1>
+      <p>Your smile, our passion. Professional dental care for all ages.</p>
+      <a href="/contact" class="cta-btn">Book an Appointment</a>
+    </div>
+  </header>
+  <section class="services-overview">
+    <h2>Our Services</h2>
+    <div class="services-list">
+      <div class="service-item">
+        <img src="/assets/icons/cleaning.svg" alt="Cleaning">
+        <h3>Teeth Cleaning</h3>
+        <p>Gentle and thorough cleaning for a healthy smile.</p>
+      </div>
+      <div class="service-item">
+        <img src="/assets/icons/whitening.svg" alt="Whitening">
+        <h3>Teeth Whitening</h3>
+        <p>Brighten your smile with our safe whitening treatments.</p>
+      </div>
+      <div class="service-item">
+        <img src="/assets/icons/implant.svg" alt="Implant">
+        <h3>Dental Implants</h3>
+        <p>Restore your smile with natural-looking implants.</p>
+      </div>
+      <div class="service-item">
+        <img src="/assets/icons/child.svg" alt="Pediatric">
+        <h3>Pediatric Dentistry</h3>
+        <p>Gentle care for our youngest patients.</p>
+      </div>
+    </div>
+    <a href="/services" class="cta-link">See All Services</a>
+  </section>
+  <section class="testimonials">
+    <h2>What Our Patients Say</h2>
+    <div class="testimonial-list">
+      <div class="testimonial-item">
+        <img src="/assets/images/patient1.jpg" alt="Patient 1">
+        <blockquote>"The staff is so friendly and professional. My kids love coming here!"</blockquote>
+        <cite>- Maria L.</cite>
+      </div>
+      <div class="testimonial-item">
+        <img src="/assets/images/patient2.jpg" alt="Patient 2">
+        <blockquote>"Best dental experience ever. Highly recommend SmileBright!"</blockquote>
+        <cite>- John D.</cite>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <%- include('partials/footer') %>
+  </footer>
+</body>
+</html> 

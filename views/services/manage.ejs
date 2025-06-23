@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Management | Clinic Management</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+      <!-- Enhanced User Profile Section -->
+      <div class="dashboard-user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <div class="user-details">
+          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <p class="user-role">Clinic Administrator</p>
+          <div class="user-status">
+            <span class="status-indicator active"></span>
+            <span class="status-text">Online</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Navigation -->
+      <nav class="dashboard-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="/dashboard" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Management</span>
+          <a href="/clients" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span class="nav-text">Clients</span>
+          </a>
+          <a href="/appointments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="far fa-calendar-alt"></i>
+            </div>
+            <span class="nav-text">Appointments</span>
+          </a>
+          <a href="/appointments/calendar" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-calendar-week"></i>
+            </div>
+            <span class="nav-text">Calendar</span>
+          </a>
+          <a href="/services/manage" class="dashboard-nav-item active">
+            <div class="nav-icon">
+              <i class="fas fa-tooth"></i>
+            </div>
+            <span class="nav-text">Services</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Tools</span>
+          <a href="/reminders" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-bell"></i>
+            </div>
+            <span class="nav-text">Reminders</span>
+          </a>
+          <a href="/reports" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+      </nav>
+      
+      <!-- Enhanced Logout Section -->
+      <div class="dashboard-logout">
+        <a href="/logout" class="dashboard-logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
+      <!-- Enhanced Header with Breadcrumb -->
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="breadcrumb">
+            <span class="breadcrumb-item">Clinic</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item current">Services</span>
+          </div>
+          <h1 class="dashboard-title">
+            <i class="fas fa-tooth title-icon"></i>
+            Service Management
+          </h1>
+          <p class="dashboard-subtitle">Manage dental services, pricing, and treatment offerings</p>
+        </div>
+        <div class="header-actions">
+          <div class="current-time" id="currentTime">
+            <i class="far fa-clock"></i>
+            <span></span>
+          </div>
+          <a href="/services/add" class="dashboard-btn primary">
+            <i class="fas fa-plus"></i>
+            <span>Add Service</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Enhanced Services Controls Section -->
+      <section class="services-controls-section">
+        <div class="services-controls">
+          <div class="services-header">
+            <h2 class="section-title">
+              <i class="fas fa-search"></i>
+              Search & Filter
+            </h2>
+            <p class="section-subtitle">Find and organize your dental services</p>
+          </div>
+          
+          <div class="services-actions">
+            <div class="search-filter-group">
+              <div class="search-container enhanced">
+                <input type="text" id="serviceSearch" placeholder="Search services by name or description..." class="search-input">
+                <i class="fas fa-search search-icon"></i>
+                <button class="search-clear" id="clearSearch" style="display: none;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              
+              <div class="filter-container">
+                <select id="categoryFilter" class="category-filter enhanced">
+                  <option value="">All Categories</option>
+                  <option value="General">
+                    <i class="fas fa-stethoscope"></i> General
+                  </option>
+                  <option value="Cosmetic">
+                    <i class="fas fa-smile"></i> Cosmetic
+                  </option>
+                  <option value="Orthodontics">
+                    <i class="fas fa-teeth"></i> Orthodontics
+                  </option>
+                  <option value="Surgery">
+                    <i class="fas fa-user-md"></i> Surgery
+                  </option>
+                  <option value="Pediatric">
+                    <i class="fas fa-baby"></i> Pediatric
+                  </option>
+                  <option value="Emergency">
+                    <i class="fas fa-exclamation-triangle"></i> Emergency
+                  </option>
+                </select>
+                <i class="fas fa-filter filter-icon"></i>
+              </div>
+            </div>
+            
+            <div class="view-controls">
+              <button class="view-btn active" data-view="grid" title="Grid View">
+                <i class="fas fa-th"></i>
+              </button>
+              <button class="view-btn" data-view="list" title="List View">
+                <i class="fas fa-list"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alert Section -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <section class="alert-section">
+          <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span><%= error %></span>
+          </div>
+        </section>
+      <% } %>
+
+      <!-- Enhanced Services Grid Section -->
+      <section class="services-grid-section">
+        <div class="services-container">
+          <div class="services-status-bar">
+            <div class="services-count">
+              <i class="fas fa-tooth"></i>
+              <span id="servicesCount">Loading services...</span>
+            </div>
+            <div class="services-summary">
+              <span class="summary-item">
+                <i class="fas fa-layer-group"></i>
+                <span id="categoriesCount">0 categories</span>
+              </span>
+              <span class="summary-item">
+                <i class="fas fa-dollar-sign"></i>
+                <span id="priceRange">$0 - $0</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="services-grid enhanced" id="servicesGrid">
+            <!-- Services will be loaded by JavaScript -->
+            <div class="loading-state">
+              <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <p>Loading services...</p>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state hidden" id="emptyState">
+            <div class="empty-state-content">
+              <div class="empty-state-icon">
+                <i class="fas fa-tooth"></i>
+              </div>
+              <h3>No services found</h3>
+              <p>Start building your service catalog by adding your first dental service.</p>
+              <a href="/services/add" class="dashboard-btn primary">
+                <i class="fas fa-plus"></i>
+                Add First Service
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enhanced Service Detail Modal -->
+      <div id="serviceModal" class="modal-overlay hidden">
+        <div class="modal-content service-modal">
+          <div class="modal-header">
+            <div class="modal-title-section">
+              <h3>Service Details</h3>
+              <p>Complete service information and management options</p>
+            </div>
+            <button onclick="hideServiceModal()" class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="serviceModalContent" class="service-modal-content">
+            <!-- Service details will be loaded here -->
+          </div>
+          <div class="modal-actions">
+            <button onclick="hideServiceModal()" class="dashboard-btn secondary">
+              <i class="fas fa-times"></i>
+              Close
+            </button>
+            <button id="editServiceBtn" class="dashboard-btn primary">
+              <i class="fas fa-edit"></i>
+              Edit Service
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Delete Confirmation Modal -->
+      <div id="deleteModal" class="modal-overlay hidden">
+        <div class="modal-content">
+          <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 class="modal-title">Delete Service</h3>
+          <p class="modal-message">
+            Are you sure you want to delete "<span id="deleteServiceName"></span>"? 
+            This action cannot be undone and will affect any associated appointments.
+          </p>
+          <div class="modal-actions">
+            <button onclick="hideDeleteModal()" class="modal-btn cancel">Cancel</button>
+            <button onclick="confirmDelete()" class="modal-btn confirm">Delete Service</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Services JavaScript -->
+  <script src="/js/services.js"></script>
+  <script>
+    // Enhanced functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update current time
+      function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        const timeElement = document.querySelector('#currentTime span');
+        if (timeElement) {
+          timeElement.textContent = timeString;
+        }
+      }
+      
+      updateTime();
+      setInterval(updateTime, 60000);
+
+      // Initialize services with enhanced features
+      initializeServices();
+
+      // Enhanced search functionality
+      const searchInput = document.getElementById('serviceSearch');
+      const clearSearchBtn = document.getElementById('clearSearch');
+      
+      searchInput.addEventListener('input', function() {
+        if (this.value.length > 0) {
+          clearSearchBtn.style.display = 'block';
+        } else {
+          clearSearchBtn.style.display = 'none';
+        }
+      });
+      
+      clearSearchBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        this.style.display = 'none';
+        // Trigger search update
+        searchInput.dispatchEvent(new Event('input'));
+      });
+
+      // View toggle functionality
+      const viewButtons = document.querySelectorAll('.view-btn');
+      viewButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          viewButtons.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          const view = this.dataset.view;
+          const servicesGrid = document.getElementById('servicesGrid');
+          
+          if (view === 'list') {
+            servicesGrid.classList.add('list-view');
+          } else {
+            servicesGrid.classList.remove('list-view');
+          }
+        });
+      });
+
+      // Add entrance animations
+      document.querySelector('.services-controls-section').style.animation = 'slideInUp 0.6s ease-out';
+      document.querySelector('.services-grid-section').style.animation = 'slideInUp 0.6s ease-out 0.2s both';
+    });
+
+    // Enhanced modal functions
+    function hideServiceModal() {
+      document.getElementById('serviceModal').classList.add('hidden');
+    }
+
+    function hideDeleteModal() {
+      document.getElementById('deleteModal').classList.add('hidden');
+    }
+
+    function confirmDelete() {
+      // Implementation handled by services.js
+      if (typeof window.confirmServiceDelete === 'function') {
+        window.confirmServiceDelete();
+      }
+    }
+
+    // Close modals on escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        hideServiceModal();
+        hideDeleteModal();
+      }
+    });
+
+    // Close modals on background click
+    document.getElementById('serviceModal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        hideServiceModal();
+      }
+    });
+
+    document.getElementById('deleteModal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        hideDeleteModal();
+      }
+    });
+  </script>
+</body>
+</html> 

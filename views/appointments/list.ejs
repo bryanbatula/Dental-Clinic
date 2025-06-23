@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointments List | Clinic Management</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+      <!-- Enhanced User Profile Section -->
+      <div class="dashboard-user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <div class="user-details">
+          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <p class="user-role">Clinic Administrator</p>
+          <div class="user-status">
+            <span class="status-indicator active"></span>
+            <span class="status-text">Online</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Navigation -->
+      <nav class="dashboard-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="/dashboard" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Management</span>
+          <a href="/clients" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span class="nav-text">Clients</span>
+          </a>
+          <a href="/appointments" class="dashboard-nav-item active">
+            <div class="nav-icon">
+              <i class="far fa-calendar-alt"></i>
+            </div>
+            <span class="nav-text">Appointments</span>
+          </a>
+          <a href="/appointments/calendar" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-calendar-week"></i>
+            </div>
+            <span class="nav-text">Calendar</span>
+          </a>
+          <a href="/services/manage" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-tooth"></i>
+            </div>
+            <span class="nav-text">Services</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Tools</span>
+          <a href="/reminders" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-bell"></i>
+            </div>
+            <span class="nav-text">Reminders</span>
+          </a>
+          <a href="/reports" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+      </nav>
+      
+      <!-- Enhanced Logout Section -->
+      <div class="dashboard-logout">
+        <a href="/logout" class="dashboard-logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
+      <!-- Enhanced Header with Breadcrumb -->
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="breadcrumb">
+            <span class="breadcrumb-item">Clinic</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item current">Appointments</span>
+          </div>
+          <h1 class="dashboard-title">
+            <i class="fas fa-calendar-alt title-icon"></i>
+            Appointment Management
+          </h1>
+          <p class="dashboard-subtitle">Schedule, manage, and track all patient appointments</p>
+        </div>
+        <div class="header-actions">
+          <div class="current-time" id="currentTime">
+            <i class="far fa-clock"></i>
+            <span></span>
+          </div>
+          <a href="/appointments/calendar" class="dashboard-btn secondary">
+            <i class="fas fa-calendar-week"></i>
+            <span>Calendar View</span>
+          </a>
+          <a href="/appointments/add" class="dashboard-btn primary">
+            <i class="fas fa-calendar-plus"></i>
+            <span>New Appointment</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Enhanced Statistics Section -->
+      <section class="appointments-stats-section">
+        <div class="stats-grid">
+          <div class="stat-card appointments-stat">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value"><%= pagination.totalItems %></div>
+              <div class="stat-label">Total Appointments</div>
+              <div class="stat-trend">
+                <i class="fas fa-clock"></i>
+                <span>All time records</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card showing-stat">
+            <div class="stat-icon">
+              <i class="fas fa-eye"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value"><%= appointments.length %></div>
+              <div class="stat-label">Showing Now</div>
+              <div class="stat-trend">
+                <i class="fas fa-list"></i>
+                <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %></span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card today-stat">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-day"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">0</div>
+              <div class="stat-label">Today's Appointments</div>
+              <div class="stat-trend">
+                <i class="fas fa-calendar-check"></i>
+                <span>Scheduled today</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enhanced Table Section -->
+      <section class="appointments-table-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-table"></i>
+            Appointment Schedule
+          </h2>
+          <p class="section-subtitle">Complete list of all clinic appointments</p>
+        </div>
+
+        <div class="appointments-table-wrapper">
+          <!-- Enhanced Table Info Bar -->
+          <div class="table-info-bar">
+            <div class="table-stats">
+              <span class="total-count">
+                <i class="fas fa-calendar-alt"></i>
+                Total: <%= pagination.totalItems %> appointments
+              </span>
+              <span class="page-info">
+                Showing <%= appointments.length > 0 ? ((pagination.currentPage - 1) * pagination.itemsPerPage + 1) : 0 %> 
+                to <%= Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems) %> 
+                of <%= pagination.totalItems %> entries
+              </span>
+            </div>
+            <div class="table-actions">
+              <span class="entries-per-page">
+                <i class="fas fa-list"></i>
+                <%= pagination.itemsPerPage %> per page
+              </span>
+            </div>
+          </div>
+
+          <% if (appointments && appointments.length > 0) { %>
+            <table class="appointments-table enhanced">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-calendar"></i> Date & Time</th>
+                  <th><i class="fas fa-user"></i> Patient</th>
+                  <th><i class="fas fa-tooth"></i> Service</th>
+                  <th><i class="fas fa-notes-medical"></i> Notes</th>
+                  <th><i class="fas fa-check-circle"></i> Status</th>
+                  <th><i class="fas fa-cogs"></i> Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% appointments.forEach((appointment, index) => { %>
+                  <tr class="appointment-row" style="animation: slideInUp 0.3s ease-out <%= index * 0.05 %>s both;">
+                    <td class="datetime-info">
+                      <div class="date-display">
+                        <span class="date-primary">
+                          <%= new Date(appointment.appointment_time).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          }) %>
+                        </span>
+                        <span class="time-secondary">
+                          <%= new Date(appointment.appointment_time).toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          }) %>
+                        </span>
+                      </div>
+                    </td>
+                    <td class="patient-info">
+                      <div class="patient-profile">
+                        <div class="patient-details">
+                          <strong class="patient-name"><%= appointment.client_name %></strong>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="service-info">
+                      <div class="service-display">
+                        <i class="fas fa-tooth"></i>
+                        <%= appointment.service_name %>
+                      </div>
+                    </td>
+                    <td class="notes-info">
+                      <% if (appointment.notes) { %>
+                        <div class="notes-preview" title="<%= appointment.notes %>">
+                          <%= appointment.notes.length > 30 ? appointment.notes.substring(0, 30) + '...' : appointment.notes %>
+                        </div>
+                      <% } else { %>
+                        <span class="no-data">No notes</span>
+                      <% } %>
+                    </td>
+                    <td class="status-info">
+                      <span class="status-badge <%= appointment.status.toLowerCase() %>">
+                        <i class="fas fa-<%= appointment.status.toLowerCase() === 'completed' ? 'check' : appointment.status.toLowerCase() === 'scheduled' ? 'clock' : appointment.status.toLowerCase() === 'confirmed' ? 'check-double' : 'times' %>"></i>
+                        <%= appointment.status %>
+                      </span>
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        <a href="/appointments/edit/<%= appointment.id %>" class="action-btn edit" title="Edit Appointment">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <button type="button" class="action-btn delete" title="Delete Appointment" onclick="showDeleteModal('<%= appointment.id %>', '<%= appointment.client_name %>', '<%= new Date(appointment.appointment_time).toLocaleDateString() %>')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <div class="no-data-state">
+              <div class="no-data-content">
+                <div class="no-data-icon">
+                  <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3>No appointments found</h3>
+                <p>Start scheduling appointments to see them listed here. Create your first appointment to get started.</p>
+                <a href="/appointments/add" class="dashboard-btn primary">
+                  <i class="fas fa-calendar-plus"></i>
+                  Schedule First Appointment
+                </a>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- Enhanced Pagination Controls -->
+          <% if (pagination.totalPages > 1) { %>
+            <div class="pagination-wrapper">
+              <div class="pagination-info">
+                <span>Page <%= pagination.currentPage %> of <%= pagination.totalPages %></span>
+              </div>
+              <nav class="pagination-nav">
+                <div class="pagination-controls">
+                  <!-- First Page -->
+                  <% if (pagination.currentPage > 1) { %>
+                    <a href="/appointments?page=1" class="pagination-btn first" title="First Page">
+                      <i class="fas fa-angle-double-left"></i>
+                    </a>
+                  <% } else { %>
+                    <span class="pagination-btn first disabled">
+                      <i class="fas fa-angle-double-left"></i>
+                    </span>
+                  <% } %>
+
+                  <!-- Previous Page -->
+                  <% if (pagination.hasPrev) { %>
+                    <a href="/appointments?page=<%= pagination.currentPage - 1 %>" class="pagination-btn prev" title="Previous Page">
+                      <i class="fas fa-angle-left"></i>
+                    </a>
+                  <% } else { %>
+                    <span class="pagination-btn prev disabled">
+                      <i class="fas fa-angle-left"></i>
+                    </span>
+                  <% } %>
+
+                  <!-- Page Numbers -->
+                  <div class="pagination-numbers">
+                    <% 
+                      let startPage = Math.max(1, pagination.currentPage - 2);
+                      let endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
+                      
+                      if (endPage - startPage < 4) {
+                        if (startPage === 1) {
+                          endPage = Math.min(pagination.totalPages, startPage + 4);
+                        } else {
+                          startPage = Math.max(1, endPage - 4);
+                        }
+                      }
+                    %>
+                    
+                    <% for (let i = startPage; i <= endPage; i++) { %>
+                      <% if (i === pagination.currentPage) { %>
+                        <span class="pagination-btn current"><%= i %></span>
+                      <% } else { %>
+                        <a href="/appointments?page=<%= i %>" class="pagination-btn"><%= i %></a>
+                      <% } %>
+                    <% } %>
+                  </div>
+
+                  <!-- Next Page -->
+                  <% if (pagination.hasNext) { %>
+                    <a href="/appointments?page=<%= pagination.currentPage + 1 %>" class="pagination-btn next" title="Next Page">
+                      <i class="fas fa-angle-right"></i>
+                    </a>
+                  <% } else { %>
+                    <span class="pagination-btn next disabled">
+                      <i class="fas fa-angle-right"></i>
+                    </span>
+                  <% } %>
+
+                  <!-- Last Page -->
+                  <% if (pagination.currentPage < pagination.totalPages) { %>
+                    <a href="/appointments?page=<%= pagination.totalPages %>" class="pagination-btn last" title="Last Page">
+                      <i class="fas fa-angle-double-right"></i>
+                    </a>
+                  <% } else { %>
+                    <span class="pagination-btn last disabled">
+                      <i class="fas fa-angle-double-right"></i>
+                    </span>
+                  <% } %>
+                </div>
+              </nav>
+            </div>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h3 class="modal-title">Delete Appointment</h3>
+      <p class="modal-message">
+        Are you sure you want to delete this appointment? This action cannot be undone.
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="hideDeleteModal()">Cancel</button>
+        <button class="modal-btn confirm" onclick="confirmDelete()">Delete Appointment</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Enhanced functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update current time
+      function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        const timeElement = document.querySelector('#currentTime span');
+        if (timeElement) {
+          timeElement.textContent = timeString;
+        }
+      }
+      
+      updateTime();
+      setInterval(updateTime, 60000);
+    });
+
+    // Delete modal functionality
+    let deleteAppointmentId = null;
+    let deleteAppointmentInfo = null;
+
+    function showDeleteModal(appointmentId, clientName, appointmentDate) {
+      deleteAppointmentId = appointmentId;
+      deleteAppointmentInfo = { clientName, appointmentDate };
+      document.querySelector('.modal-message').innerHTML = 
+        `Are you sure you want to delete the appointment for <strong>${clientName}</strong> on <strong>${appointmentDate}</strong>? This action cannot be undone.`;
+      document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    function hideDeleteModal() {
+      document.getElementById('deleteModal').classList.add('hidden');
+      deleteAppointmentId = null;
+      deleteAppointmentInfo = null;
+    }
+
+    function confirmDelete() {
+      if (deleteAppointmentId) {
+        // Create a form to submit the delete request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/appointments/delete/${deleteAppointmentId}`;
+        
+        // Add CSRF token if needed
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_method';
+        csrfInput.value = 'DELETE';
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        hideDeleteModal();
+      }
+    });
+
+    // Close modal on background click
+    document.getElementById('deleteModal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        hideDeleteModal();
+      }
+    });
+  </script>
+</body>
+</html> 

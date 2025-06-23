@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= client.name %> - Client Details | Clinic Management</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+      <!-- Enhanced User Profile Section -->
+      <div class="dashboard-user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <div class="user-details">
+          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <p class="user-role">Clinic Administrator</p>
+          <div class="user-status">
+            <span class="status-indicator active"></span>
+            <span class="status-text">Online</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Navigation -->
+      <nav class="dashboard-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="/dashboard" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Management</span>
+          <a href="/clients" class="dashboard-nav-item active">
+            <div class="nav-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span class="nav-text">Clients</span>
+          </a>
+          <a href="/appointments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="far fa-calendar-alt"></i>
+            </div>
+            <span class="nav-text">Appointments</span>
+          </a>
+          <a href="/appointments/calendar" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-calendar-week"></i>
+            </div>
+            <span class="nav-text">Calendar</span>
+          </a>
+          <a href="/services/manage" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-tooth"></i>
+            </div>
+            <span class="nav-text">Services</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Tools</span>
+          <a href="/reminders" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-bell"></i>
+            </div>
+            <span class="nav-text">Reminders</span>
+          </a>
+          <a href="/reports" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+      </nav>
+      
+      <!-- Enhanced Logout Section -->
+      <div class="dashboard-logout">
+        <a href="/logout" class="dashboard-logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
+      <!-- Enhanced Header with Breadcrumb -->
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="breadcrumb">
+            <span class="breadcrumb-item">Clinic</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item">
+              <a href="/clients" style="color: #6b7280; text-decoration: none;">Clients</a>
+            </span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item current"><%= client.name %></span>
+          </div>
+          <h1 class="dashboard-title">
+            <i class="fas fa-user-circle title-icon"></i>
+            Client Profile
+          </h1>
+          <p class="dashboard-subtitle">Comprehensive patient information and appointment history</p>
+        </div>
+        <div class="header-actions">
+          <div class="current-time" id="currentTime">
+            <i class="far fa-clock"></i>
+            <span></span>
+          </div>
+          <a href="/clients/edit/<%= client.id %>" class="dashboard-btn primary">
+            <i class="fas fa-edit"></i>
+            <span>Edit Client</span>
+          </a>
+          <a href="/appointments/add?client_id=<%= client.id %>" class="dashboard-btn secondary">
+            <i class="fas fa-calendar-plus"></i>
+            <span>New Appointment</span>
+          </a>
+          <a href="/clients" class="dashboard-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Clients</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Enhanced Client Information Section -->
+      <section class="client-profile-section">
+        <div class="client-profile-card">
+          <!-- Enhanced Client Header -->
+          <div class="client-header">
+            <div class="client-avatar-large">
+              <%= client.name.charAt(0).toUpperCase() %>
+            </div>
+            <div class="client-title-section">
+              <h2 class="client-name"><%= client.name %></h2>
+              <p class="client-id">Patient ID: #<%= client.id %></p>
+              <div class="client-badges">
+                <span class="status-badge active">
+                  <i class="fas fa-heart-pulse"></i>
+                  Active Patient
+                </span>
+                <% if (client.medical_history) { %>
+                  <span class="info-badge medical">
+                    <i class="fas fa-notes-medical"></i>
+                    Medical History Available
+                  </span>
+                <% } %>
+              </div>
+            </div>
+            <div class="client-stats">
+              <div class="stat-item">
+                <span class="stat-value" id="totalAppointments">
+                  <%= appointments ? appointments.length : 0 %>
+                </span>
+                <span class="stat-label">Total Appointments</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="completedAppointments">
+                  <%= appointments ? appointments.filter(apt => apt.status.toLowerCase() === 'completed').length : 0 %>
+                </span>
+                <span class="stat-label">Completed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enhanced Information Grid -->
+          <div class="client-info-grid">
+            <!-- Contact Information Card -->
+            <div class="info-card contact-info">
+              <div class="info-card-header">
+                <div class="card-icon contact">
+                  <i class="fas fa-address-book"></i>
+                </div>
+                <h3>Contact Information</h3>
+                <div class="card-badge verified">
+                  <i class="fas fa-shield-check"></i>
+                  Verified
+                </div>
+              </div>
+              <div class="info-card-content">
+                <div class="info-item">
+                  <div class="info-icon">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <div class="info-details">
+                    <label>Email Address</label>
+                    <span class="copyable" data-copy="<%= client.email %>"><%= client.email %></span>
+                    <button class="copy-btn" title="Copy Email">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-icon">
+                    <i class="fas fa-phone"></i>
+                  </div>
+                  <div class="info-details">
+                    <label>Phone Number</label>
+                    <span class="copyable" data-copy="<%= client.phone %>"><%= client.phone %></span>
+                    <button class="copy-btn" title="Copy Phone">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+                <% if (client.address) { %>
+                  <div class="info-item">
+                    <div class="info-icon">
+                      <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Address</label>
+                      <span class="copyable" data-copy="<%= client.address %>"><%= client.address %></span>
+                      <button class="copy-btn" title="Copy Address">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Personal Information Card -->
+            <div class="info-card personal-info">
+              <div class="info-card-header">
+                <div class="card-icon personal">
+                  <i class="fas fa-user"></i>
+                </div>
+                <h3>Personal Details</h3>
+                <div class="card-action">
+                  <button class="action-btn small edit" title="Quick Edit">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="info-card-content">
+                <% if (client.dob) { %>
+                  <div class="info-item">
+                    <div class="info-icon">
+                      <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Date of Birth</label>
+                      <span><%= new Date(client.dob).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                    </div>
+                  </div>
+                  <div class="info-item age-display">
+                    <div class="info-icon">
+                      <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Age</label>
+                      <span class="age-value"><%= Math.floor((new Date() - new Date(client.dob)) / (365.25 * 24 * 60 * 60 * 1000)) %> years old</span>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="info-item">
+                    <div class="info-icon">
+                      <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Date of Birth</label>
+                      <span class="no-data">Not specified</span>
+                    </div>
+                  </div>
+                <% } %>
+                <div class="info-item">
+                  <div class="info-icon">
+                    <i class="fas fa-clock"></i>
+                  </div>
+                  <div class="info-details">
+                    <label>Registration Date</label>
+                    <span><%= new Date(client.created_at || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <div class="info-icon">
+                    <i class="fas fa-user-clock"></i>
+                  </div>
+                  <div class="info-details">
+                    <label>Patient Since</label>
+                    <span id="patientDuration"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enhanced Medical Information Section -->
+          <% if (client.medical_history || client.notes) { %>
+            <div class="medical-info-section">
+              <div class="section-divider">
+                <span class="divider-text">
+                  <i class="fas fa-notes-medical"></i>
+                  Medical Information
+                </span>
+              </div>
+
+              <div class="medical-cards-grid">
+                <% if (client.medical_history) { %>
+                  <div class="medical-card">
+                    <div class="medical-card-header">
+                      <div class="card-icon medical">
+                        <i class="fas fa-notes-medical"></i>
+                      </div>
+                      <h3>Medical History</h3>
+                      <div class="card-actions">
+                        <button class="action-btn small view" title="Expand">
+                          <i class="fas fa-expand"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="medical-card-content">
+                      <div class="medical-text">
+                        <%= client.medical_history %>
+                      </div>
+                    </div>
+                  </div>
+                <% } %>
+
+                <% if (client.notes) { %>
+                  <div class="medical-card">
+                    <div class="medical-card-header">
+                      <div class="card-icon notes">
+                        <i class="fas fa-sticky-note"></i>
+                      </div>
+                      <h3>Additional Notes</h3>
+                      <div class="card-actions">
+                        <button class="action-btn small edit" title="Edit Notes">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="medical-card-content">
+                      <div class="medical-text">
+                        <%= client.notes %>
+                      </div>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- Enhanced Appointment History Section -->
+      <section class="appointments-section">
+        <div class="section-header">
+          <div class="header-left">
+            <h2 class="section-title">
+              <i class="fas fa-calendar-alt"></i>
+              Appointment History
+            </h2>
+            <p class="section-subtitle">Complete record of patient visits and treatments</p>
+          </div>
+          <div class="header-right">
+            <div class="appointment-filters">
+              <select class="filter-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <select class="filter-select" id="yearFilter">
+                <option value="">All Years</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+              </select>
+            </div>
+            <a href="/appointments/add?client_id=<%= client.id %>" class="dashboard-btn primary">
+              <i class="fas fa-plus"></i>
+              New Appointment
+            </a>
+          </div>
+        </div>
+        
+        <% if (appointments && appointments.length > 0) { %>
+          <div class="appointments-table-wrapper enhanced">
+            <div class="table-info-bar">
+              <div class="table-stats">
+                <span class="total-count">
+                  <i class="fas fa-calendar-check"></i>
+                  <span id="appointmentCount"><%= appointments.length %></span> appointments
+                </span>
+                <span class="success-rate">
+                  <i class="fas fa-chart-line"></i>
+                  Success Rate: <span id="successRate">
+                    <%= appointments.length > 0 ? Math.round((appointments.filter(apt => apt.status.toLowerCase() === 'completed').length / appointments.length) * 100) : 0 %>%
+                  </span>
+                </span>
+              </div>
+              <div class="table-actions">
+                <button class="dashboard-btn small" id="exportBtn">
+                  <i class="fas fa-download"></i>
+                  Export
+                </button>
+              </div>
+            </div>
+
+            <table class="appointments-table enhanced">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-calendar"></i> Date & Time</th>
+                  <th><i class="fas fa-tooth"></i> Service</th>
+                  <th><i class="fas fa-check-circle"></i> Status</th>
+                  <th><i class="fas fa-notes-medical"></i> Notes</th>
+                  <th><i class="fas fa-cogs"></i> Actions</th>
+                </tr>
+              </thead>
+              <tbody id="appointmentsTableBody">
+                <% appointments.forEach((appointment, index) => { %>
+                  <tr class="appointment-row animate-slide-in" data-status="<%= appointment.status.toLowerCase() %>" data-year="<%= new Date(appointment.appointment_time).getFullYear() %>">
+                    <td class="datetime-info">
+                      <div class="date-display">
+                        <span class="date-primary">
+                          <%= new Date(appointment.appointment_time).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          }) %>
+                        </span>
+                        <span class="time-secondary">
+                          <%= new Date(appointment.appointment_time).toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          }) %>
+                        </span>
+                        <span class="day-name">
+                          <%= new Date(appointment.appointment_time).toLocaleDateString('en-US', { weekday: 'short' }) %>
+                        </span>
+                      </div>
+                    </td>
+                    <td class="service-info">
+                      <div class="service-display">
+                        <i class="fas fa-tooth service-icon"></i>
+                        <span class="service-name"><%= appointment.service_name %></span>
+                      </div>
+                    </td>
+                    <td class="status-info">
+                      <span class="status-badge enhanced <%= appointment.status.toLowerCase() %>">
+                        <i class="fas fa-<%= appointment.status.toLowerCase() === 'completed' ? 'check' : appointment.status.toLowerCase() === 'pending' ? 'clock' : 'times' %>"></i>
+                        <%= appointment.status %>
+                      </span>
+                    </td>
+                    <td class="notes-info">
+                      <% if (appointment.notes) { %>
+                        <div class="notes-preview expandable" title="Click to expand">
+                          <span class="notes-text">
+                            <%= appointment.notes.length > 50 ? appointment.notes.substring(0, 50) + '...' : appointment.notes %>
+                          </span>
+                          <% if (appointment.notes.length > 50) { %>
+                            <button class="expand-btn">
+                              <i class="fas fa-chevron-down"></i>
+                            </button>
+                          <% } %>
+                        </div>
+                        <div class="notes-full" style="display: none;">
+                          <%= appointment.notes %>
+                        </div>
+                      <% } else { %>
+                        <span class="no-data">No notes</span>
+                      <% } %>
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        <a href="/appointments/edit/<%= appointment.id %>" class="action-btn edit" title="Edit Appointment">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <button type="button" class="action-btn view" title="View Details" onclick="viewAppointmentDetails(<%= appointment.id %>)">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="action-btn copy" title="Copy Details" onclick="copyAppointmentDetails(<%= appointment.id %>)">
+                          <i class="fas fa-copy"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="no-data-state enhanced">
+            <div class="no-data-content">
+              <div class="no-data-animation">
+                <div class="no-data-icon">
+                  <i class="fas fa-calendar-times"></i>
+                </div>
+                <div class="pulse-ring"></div>
+              </div>
+              <h3>No appointments found</h3>
+              <p>This patient hasn't had any appointments yet. Schedule their first visit to get started with their treatment journey.</p>
+              <div class="no-data-actions">
+                <a href="/appointments/add?client_id=<%= client.id %>" class="dashboard-btn primary large">
+                  <i class="fas fa-calendar-plus"></i>
+                  Schedule First Appointment
+                </a>
+                <a href="/clients" class="dashboard-btn secondary">
+                  <i class="fas fa-arrow-left"></i>
+                  Back to Clients
+                </a>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden">
+    <div class="toast-content">
+      <i class="toast-icon"></i>
+      <span class="toast-message"></span>
+    </div>
+  </div>
+
+  <script>
+    // Enhanced functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update current time
+      function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        const timeElement = document.querySelector('#currentTime span');
+        if (timeElement) {
+          timeElement.textContent = timeString;
+        }
+      }
+      
+      updateTime();
+      setInterval(updateTime, 60000);
+
+      // Calculate patient duration
+      const registrationDate = new Date('<%= client.created_at || Date.now() %>');
+      const now = new Date();
+      const diffTime = Math.abs(now - registrationDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffYears = Math.floor(diffDays / 365);
+      const remainingDays = diffDays % 365;
+      const diffMonths = Math.floor(remainingDays / 30);
+      
+      let durationText = '';
+      if (diffYears > 0) {
+        durationText = `${diffYears} year${diffYears > 1 ? 's' : ''}`;
+        if (diffMonths > 0) {
+          durationText += `, ${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+        }
+      } else if (diffMonths > 0) {
+        durationText = `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+      } else {
+        durationText = `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+      }
+      
+      const patientDurationElement = document.querySelector('#patientDuration');
+      if (patientDurationElement) {
+        patientDurationElement.textContent = durationText;
+      }
+
+      // Copy functionality
+      document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const copyText = this.previousElementSibling.dataset.copy;
+          navigator.clipboard.writeText(copyText).then(() => {
+            showToast('Copied to clipboard!', 'success');
+            this.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+              this.innerHTML = '<i class="fas fa-copy"></i>';
+            }, 2000);
+          });
+        });
+      });
+
+      // Filter functionality
+      const statusFilter = document.getElementById('statusFilter');
+      const yearFilter = document.getElementById('yearFilter');
+      const appointmentRows = document.querySelectorAll('.appointment-row');
+
+      function filterAppointments() {
+        const statusValue = statusFilter.value.toLowerCase();
+        const yearValue = yearFilter.value;
+        let visibleCount = 0;
+
+        appointmentRows.forEach(row => {
+          const rowStatus = row.dataset.status;
+          const rowYear = row.dataset.year;
+          
+          const statusMatch = !statusValue || rowStatus === statusValue;
+          const yearMatch = !yearValue || rowYear === yearValue;
+          
+          if (statusMatch && yearMatch) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        // Update count
+        const countElement = document.getElementById('appointmentCount');
+        if (countElement) {
+          countElement.textContent = visibleCount;
+        }
+      }
+
+      if (statusFilter) statusFilter.addEventListener('change', filterAppointments);
+      if (yearFilter) yearFilter.addEventListener('change', filterAppointments);
+
+      // Notes expansion
+      document.querySelectorAll('.notes-preview.expandable').forEach(preview => {
+        preview.addEventListener('click', function() {
+          const notesText = this.querySelector('.notes-text');
+          const fullNotes = this.nextElementSibling;
+          const expandBtn = this.querySelector('.expand-btn i');
+          
+          if (fullNotes.style.display === 'none') {
+            fullNotes.style.display = 'block';
+            this.style.display = 'none';
+          }
+        });
+      });
+
+      // Add entrance animations with staggered timing
+      const animatedElements = document.querySelectorAll('.animate-slide-in');
+      animatedElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.1}s`;
+      });
+
+      // Smooth scroll to sections
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    });
+
+    // Toast notification function
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const icon = toast.querySelector('.toast-icon');
+      const messageSpan = toast.querySelector('.toast-message');
+      
+      // Set icon based on type
+      const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+      };
+      
+      icon.className = `toast-icon ${icons[type] || icons.info}`;
+      messageSpan.textContent = message;
+      toast.className = `toast ${type}`;
+      
+      // Show toast
+      setTimeout(() => toast.classList.add('show'), 100);
+      
+      // Hide toast after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    }
+
+    // Appointment details functions
+    function viewAppointmentDetails(appointmentId) {
+      showToast('Viewing appointment details...', 'info');
+      // Add modal or navigation logic here
+    }
+
+    function copyAppointmentDetails(appointmentId) {
+      // Get appointment row data and copy to clipboard
+      const row = document.querySelector(`[onclick="copyAppointmentDetails(${appointmentId})"]`).closest('tr');
+      const date = row.querySelector('.date-primary').textContent;
+      const time = row.querySelector('.time-secondary').textContent;
+      const service = row.querySelector('.service-name').textContent;
+      const status = row.querySelector('.status-badge').textContent.trim();
+      
+      const details = `Appointment Details:\nDate: ${date}\nTime: ${time}\nService: ${service}\nStatus: ${status}`;
+      
+      navigator.clipboard.writeText(details).then(() => {
+        showToast('Appointment details copied!', 'success');
+      });
+    }
+  </script>
+</body>
+</html> 

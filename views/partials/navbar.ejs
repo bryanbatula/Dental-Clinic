@@ -1,0 +1,20 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a href="/" class="navbar-logo">
+      <img src="/assets/icons/tooth.svg" alt="Logo" height="32">
+      SmileBright
+    </a>
+    <ul class="navbar-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/services">Services</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <% if (user) { %>
+      <!-- <a href="/clients" class="navbar-cta">Dashboard</a> -->
+      <a href="/logout" class="navbar-cta" style="margin-left: 0.5rem; background: #e53935;">Logout</a>
+    <% } else { %>
+      <a href="/login" class="navbar-cta">Login</a>
+    <% } %>
+  </div>
+</nav> 

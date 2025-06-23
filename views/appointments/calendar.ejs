@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointment Calendar | Clinic Management</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <aside class="dashboard-sidebar">
+      <!-- Enhanced User Profile Section -->
+      <div class="dashboard-user-profile">
+        <div class="user-avatar">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <div class="user-details">
+          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <p class="user-role">Clinic Administrator</p>
+          <div class="user-status">
+            <span class="status-indicator active"></span>
+            <span class="status-text">Online</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Navigation -->
+      <nav class="dashboard-nav">
+        <div class="nav-section">
+          <span class="nav-section-title">Main</span>
+          <a href="/dashboard" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Management</span>
+          <a href="/clients" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span class="nav-text">Clients</span>
+          </a>
+          <a href="/appointments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="far fa-calendar-alt"></i>
+            </div>
+            <span class="nav-text">Appointments</span>
+          </a>
+          <a href="/appointments/calendar" class="dashboard-nav-item active">
+            <div class="nav-icon">
+              <i class="fas fa-calendar-week"></i>
+            </div>
+            <span class="nav-text">Calendar</span>
+          </a>
+          <a href="/services/manage" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-tooth"></i>
+            </div>
+            <span class="nav-text">Services</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <span class="nav-section-title">Tools</span>
+          <a href="/reminders" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-bell"></i>
+            </div>
+            <span class="nav-text">Reminders</span>
+          </a>
+          <a href="/reports" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+      </nav>
+      
+      <!-- Enhanced Logout Section -->
+      <div class="dashboard-logout">
+        <a href="/logout" class="dashboard-logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Sign Out</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
+      <!-- Enhanced Header with Breadcrumb -->
+      <header class="dashboard-header">
+        <div class="header-content">
+          <div class="breadcrumb">
+            <span class="breadcrumb-item">Clinic</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item">
+              <a href="/appointments" style="color: #6b7280; text-decoration: none;">Appointments</a>
+            </span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item current">Calendar View</span>
+          </div>
+          <h1 class="dashboard-title">
+            <i class="fas fa-calendar-week title-icon"></i>
+            Appointment Calendar
+          </h1>
+          <p class="dashboard-subtitle">Interactive calendar view for scheduling and managing appointments</p>
+        </div>
+        <div class="header-actions">
+          <div class="current-time" id="currentTime">
+            <i class="far fa-clock"></i>
+            <span></span>
+          </div>
+          <a href="/appointments" class="dashboard-btn secondary">
+            <i class="fas fa-list"></i>
+            <span>List View</span>
+          </a>
+          <a href="/appointments/add" class="dashboard-btn primary">
+            <i class="fas fa-calendar-plus"></i>
+            <span>New Appointment</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Enhanced Calendar Controls -->
+      <section class="calendar-controls-section">
+        <div class="calendar-controls">
+          <div class="calendar-navigation">
+            <button id="prevMonth" class="calendar-nav-btn">
+              <i class="fas fa-chevron-left"></i>
+              <span>Previous</span>
+            </button>
+            <div class="current-month-display">
+              <h2 id="currentMonth"></h2>
+              <button id="todayBtn" class="today-btn">
+                <i class="fas fa-dot-circle"></i>
+                Today
+              </button>
+            </div>
+            <button id="nextMonth" class="calendar-nav-btn">
+              <span>Next</span>
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          
+          <div class="calendar-legend">
+            <h3>
+              <i class="fas fa-info-circle"></i>
+              Legend
+            </h3>
+            <div class="legend-items">
+              <div class="legend-item">
+                <span class="legend-color scheduled"></span>
+                <span>Scheduled</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color confirmed"></span>
+                <span>Confirmed</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color completed"></span>
+                <span>Completed</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color cancelled"></span>
+                <span>Cancelled</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enhanced Calendar Section -->
+      <section class="calendar-section">
+        <div class="calendar-container">
+          <div class="calendar-grid">
+            <div class="calendar-header">
+              <div class="calendar-day-header">
+                <i class="fas fa-sun"></i>
+                <span>Sunday</span>
+              </div>
+              <div class="calendar-day-header">
+                <i class="fas fa-briefcase"></i>
+                <span>Monday</span>
+              </div>
+              <div class="calendar-day-header">
+                <i class="fas fa-briefcase"></i>
+                <span>Tuesday</span>
+              </div>
+              <div class="calendar-day-header">
+                <i class="fas fa-briefcase"></i>
+                <span>Wednesday</span>
+              </div>
+              <div class="calendar-day-header">
+                <i class="fas fa-briefcase"></i>
+                <span>Thursday</span>
+              </div>
+              <div class="calendar-day-header">
+                <i class="fas fa-briefcase"></i>
+                <span>Friday</span>
+              </div>
+              <div class="calendar-day-header">
+                <i class="fas fa-moon"></i>
+                <span>Saturday</span>
+              </div>
+            </div>
+            <div id="calendarDays" class="calendar-days">
+              <!-- Calendar days will be generated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Enhanced Day Detail Modal -->
+      <div id="dayModal" class="modal-overlay hidden">
+        <div class="modal-content day-modal">
+          <div class="modal-header">
+            <div class="modal-title-section">
+              <h3 id="dayModalTitle">Appointments for</h3>
+              <p id="dayModalSubtitle">Select a time slot to schedule an appointment</p>
+            </div>
+            <button onclick="hideDayModal()" class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="dayModalContent" class="day-modal-content">
+            <!-- Day appointments will be loaded here -->
+          </div>
+          <div class="modal-actions">
+            <button onclick="hideDayModal()" class="dashboard-btn secondary">
+              <i class="fas fa-times"></i>
+              Close
+            </button>
+            <button id="addAppointmentBtn" class="dashboard-btn primary">
+              <i class="fas fa-calendar-plus"></i>
+              Add Appointment
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Appointment Detail Modal -->
+      <div id="appointmentModal" class="modal-overlay hidden">
+        <div class="modal-content appointment-modal">
+          <div class="modal-header">
+            <div class="modal-title-section">
+              <h3>Appointment Details</h3>
+              <p>View and manage appointment information</p>
+            </div>
+            <button onclick="hideAppointmentModal()" class="modal-close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="appointmentModalContent" class="appointment-modal-content">
+            <!-- Appointment details will be loaded here -->
+          </div>
+          <div class="modal-actions">
+            <button onclick="hideAppointmentModal()" class="dashboard-btn secondary">
+              <i class="fas fa-times"></i>
+              Close
+            </button>
+            <button id="editAppointmentBtn" class="dashboard-btn primary">
+              <i class="fas fa-edit"></i>
+              Edit Appointment
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Calendar JavaScript -->
+  <script src="/js/calendar.js"></script>
+  <script>
+    // Enhanced functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update current time
+      function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('en-US', {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        const timeElement = document.querySelector('#currentTime span');
+        if (timeElement) {
+          timeElement.textContent = timeString;
+        }
+      }
+      
+      updateTime();
+      setInterval(updateTime, 60000);
+
+      // Initialize calendar with enhanced features
+      initializeCalendar();
+
+      // Add entrance animations
+      document.querySelector('.calendar-controls-section').style.animation = 'slideInUp 0.6s ease-out';
+      document.querySelector('.calendar-section').style.animation = 'slideInUp 0.6s ease-out 0.2s both';
+    });
+
+    // Enhanced modal functions
+    function hideDayModal() {
+      document.getElementById('dayModal').classList.add('hidden');
+    }
+
+    function hideAppointmentModal() {
+      document.getElementById('appointmentModal').classList.add('hidden');
+    }
+
+    // Close modals on escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        hideDayModal();
+        hideAppointmentModal();
+      }
+    });
+
+    // Close modals on background click
+    document.getElementById('dayModal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        hideDayModal();
+      }
+    });
+
+    document.getElementById('appointmentModal').addEventListener('click', function(event) {
+      if (event.target === this) {
+        hideAppointmentModal();
+      }
+    });
+  </script>
+</body>
+</html> 
