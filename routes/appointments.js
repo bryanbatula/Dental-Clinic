@@ -4,18 +4,20 @@ const Appointment = require('../models/appointment');
 const Client = require('../models/client');
 const Service = require('../models/service');
 
-// List all appointments with pagination
+// List all appointments with pagination and search
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 10; // Items per page
+    const searchTerm = req.query.search || '';
     
-    const result = await Appointment.getAllPaginated(page, limit);
+    const result = await Appointment.getAllPaginatedWithSearch(page, limit, searchTerm);
     
     res.render('appointments/list', { 
       title: 'Appointments', 
       appointments: result.appointments,
       pagination: result.pagination,
+      searchTerm: result.searchTerm,
       user: req.session.user 
     });
   } catch (error) {
@@ -24,6 +26,7 @@ router.get('/', async (req, res) => {
       title: 'Appointments', 
       appointments: [], 
       pagination: { currentPage: 1, totalPages: 0, totalItems: 0, hasNext: false, hasPrev: false },
+      searchTerm: req.query.search || '',
       error: 'Failed to load appointments', 
       user: req.session.user 
     });

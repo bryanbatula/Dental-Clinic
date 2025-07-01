@@ -57,6 +57,12 @@
             </div>
             <span class="nav-text">Calendar</span>
           </a>
+          <a href="/treatments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-procedures"></i>
+            </div>
+            <span class="nav-text">Treatments</span>
+          </a>
           <a href="/services/manage" class="dashboard-nav-item">
             <div class="nav-icon">
               <i class="fas fa-tooth"></i>
@@ -107,18 +113,42 @@
           <p class="dashboard-subtitle">Schedule, manage, and track all patient appointments</p>
         </div>
         <div class="header-actions">
-          <div class="current-time" id="currentTime">
-            <i class="far fa-clock"></i>
-            <span></span>
+          <div class="search-container">
+            <form class="search-form" method="GET" action="/appointments">
+              <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                  type="text" 
+                  name="search" 
+                  class="search-input" 
+                  placeholder="Search by client or service..." 
+                  value="<%= searchTerm || '' %>"
+                  autocomplete="off"
+                >
+                <% if (searchTerm && searchTerm.trim()) { %>
+                  <a href="/appointments" class="search-clear" title="Clear search">
+                    <i class="fas fa-times"></i>
+                  </a>
+                <% } %>
+              </div>
+              <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+              </button>
+            </form>
           </div>
-          <a href="/appointments/calendar" class="dashboard-btn secondary">
-            <i class="fas fa-calendar-week"></i>
-            <span>Calendar View</span>
-          </a>
-          <a href="/appointments/add" class="dashboard-btn primary">
-            <i class="fas fa-calendar-plus"></i>
-            <span>New Appointment</span>
-          </a>
+                              <div class="current-time" id="currentTime">
+                        <i class="far fa-clock"></i>
+                        <span></span>
+                    </div>
+                    <a href="/appointments/add" class="dashboard-btn primary">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>New Appointment</span>
+                    </a>
+                    <a href="/appointments/calendar" class="dashboard-btn secondary">
+                        <i class="fas fa-calendar-week"></i>
+                        <span>Calendar View</span>
+                    </a>
         </div>
       </header>
 
@@ -183,10 +213,21 @@
           <!-- Enhanced Table Info Bar -->
           <div class="table-info-bar">
             <div class="table-stats">
-              <span class="total-count">
-                <i class="fas fa-calendar-alt"></i>
-                Total: <%= pagination.totalItems %> appointments
-              </span>
+              <% if (searchTerm && searchTerm.trim()) { %>
+                <span class="search-results">
+                  <i class="fas fa-search"></i>
+                  Search results for "<%= searchTerm %>"
+                </span>
+                <span class="total-count">
+                  <i class="fas fa-filter"></i>
+                  Found: <%= pagination.totalItems %> appointments
+                </span>
+              <% } else { %>
+                <span class="total-count">
+                  <i class="fas fa-calendar-alt"></i>
+                  Total: <%= pagination.totalItems %> appointments
+                </span>
+              <% } %>
               <span class="page-info">
                 Showing <%= appointments.length > 0 ? ((pagination.currentPage - 1) * pagination.itemsPerPage + 1) : 0 %> 
                 to <%= Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems) %> 
@@ -301,7 +342,7 @@
                 <div class="pagination-controls">
                   <!-- First Page -->
                   <% if (pagination.currentPage > 1) { %>
-                    <a href="/appointments?page=1" class="pagination-btn first" title="First Page">
+                    <a href="/appointments?page=1<%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn first" title="First Page">
                       <i class="fas fa-angle-double-left"></i>
                     </a>
                   <% } else { %>
@@ -312,7 +353,7 @@
 
                   <!-- Previous Page -->
                   <% if (pagination.hasPrev) { %>
-                    <a href="/appointments?page=<%= pagination.currentPage - 1 %>" class="pagination-btn prev" title="Previous Page">
+                    <a href="/appointments?page=<%= pagination.currentPage - 1 %><%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn prev" title="Previous Page">
                       <i class="fas fa-angle-left"></i>
                     </a>
                   <% } else { %>
@@ -340,14 +381,14 @@
                       <% if (i === pagination.currentPage) { %>
                         <span class="pagination-btn current"><%= i %></span>
                       <% } else { %>
-                        <a href="/appointments?page=<%= i %>" class="pagination-btn"><%= i %></a>
+                        <a href="/appointments?page=<%= i %><%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn"><%= i %></a>
                       <% } %>
                     <% } %>
                   </div>
 
                   <!-- Next Page -->
                   <% if (pagination.hasNext) { %>
-                    <a href="/appointments?page=<%= pagination.currentPage + 1 %>" class="pagination-btn next" title="Next Page">
+                    <a href="/appointments?page=<%= pagination.currentPage + 1 %><%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn next" title="Next Page">
                       <i class="fas fa-angle-right"></i>
                     </a>
                   <% } else { %>
@@ -358,7 +399,7 @@
 
                   <!-- Last Page -->
                   <% if (pagination.currentPage < pagination.totalPages) { %>
-                    <a href="/appointments?page=<%= pagination.totalPages %>" class="pagination-btn last" title="Last Page">
+                    <a href="/appointments?page=<%= pagination.totalPages %><%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn last" title="Last Page">
                       <i class="fas fa-angle-double-right"></i>
                     </a>
                   <% } else { %>

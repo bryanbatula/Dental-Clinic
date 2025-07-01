@@ -2,18 +2,22 @@ const express = require('express');
 const router = express.Router();
 const Client = require('../models/client');
 
-// List all clients with pagination
+// List all clients with pagination and search
 router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 10; // Items per page
+    const searchTerm = req.query.search || '';
     
-    const result = await Client.getAllPaginated(page, limit);
+    const result = await Client.getAllPaginatedWithSearch(page, limit, searchTerm);
+    const addedThisWeek = await Client.getWeeklyStats();
     
     res.render('clients/list', { 
       title: 'Clients', 
       clients: result.clients,
       pagination: result.pagination,
+      searchTerm: result.searchTerm,
+      addedThisWeek: addedThisWeek,
       user: req.session.user 
     });
   } catch (error) {
@@ -22,6 +26,8 @@ router.get('/', async (req, res) => {
       title: 'Clients', 
       clients: [], 
       pagination: { currentPage: 1, totalPages: 0, totalItems: 0, hasNext: false, hasPrev: false },
+      searchTerm: req.query.search || '',
+      addedThisWeek: 0,
       error: 'Failed to load clients', 
       user: req.session.user 
     });

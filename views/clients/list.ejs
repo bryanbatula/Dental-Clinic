@@ -57,6 +57,12 @@
             </div>
             <span class="nav-text">Calendar</span>
           </a>
+          <a href="/treatments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-procedures"></i>
+            </div>
+            <span class="nav-text">Treatments</span>
+          </a>
           <a href="/services/manage" class="dashboard-nav-item">
             <div class="nav-icon">
               <i class="fas fa-tooth"></i>
@@ -107,6 +113,30 @@
           <p class="dashboard-subtitle">Manage patient records, contact information, and medical history</p>
         </div>
         <div class="header-actions">
+          <div class="search-container">
+            <form class="search-form" method="GET" action="/clients">
+              <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                  type="text" 
+                  name="search" 
+                  class="search-input" 
+                  placeholder="Search clients by name..." 
+                  value="<%= searchTerm || '' %>"
+                  autocomplete="off"
+                >
+                <% if (searchTerm && searchTerm.trim()) { %>
+                  <a href="/clients" class="search-clear" title="Clear search">
+                    <i class="fas fa-times"></i>
+                  </a>
+                <% } %>
+              </div>
+              <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+              </button>
+            </form>
+          </div>
           <div class="current-time" id="currentTime">
             <i class="far fa-clock"></i>
             <span></span>
@@ -154,7 +184,7 @@
               <i class="fas fa-calendar-plus"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-value">0</div>
+              <div class="stat-value"><%= addedThisWeek || 0 %></div>
               <div class="stat-label">Added This Week</div>
               <div class="stat-trend">
                 <i class="fas fa-clock"></i>
@@ -179,10 +209,21 @@
           <!-- Enhanced Table Info Bar -->
           <div class="table-info-bar">
             <div class="table-stats">
-              <span class="total-count">
-                <i class="fas fa-users"></i>
-                Total: <%= pagination.totalItems %> clients
-              </span>
+              <% if (searchTerm && searchTerm.trim()) { %>
+                <span class="search-results">
+                  <i class="fas fa-search"></i>
+                  Search results for "<%= searchTerm %>"
+                </span>
+                <span class="total-count">
+                  <i class="fas fa-filter"></i>
+                  Found: <%= pagination.totalItems %> clients
+                </span>
+              <% } else { %>
+                <span class="total-count">
+                  <i class="fas fa-users"></i>
+                  Total: <%= pagination.totalItems %> clients
+                </span>
+              <% } %>
               <span class="page-info">
                 Showing <%= clients.length > 0 ? ((pagination.currentPage - 1) * pagination.itemsPerPage + 1) : 0 %> 
                 to <%= Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems) %> 
@@ -203,14 +244,14 @@
                 <tr>
                   <th><i class="fas fa-user"></i> Patient</th>
                   <th><i class="fas fa-phone"></i> Contact</th>
-                  <th><i class="fas fa-envelope"></i> Email</th>
+                  <th><i class="fas fa-map-marker-alt"></i> Address</th>
                   <th><i class="fas fa-birthday-cake"></i> Age</th>
                   <th><i class="fas fa-cogs"></i> Actions</th>
                 </tr>
               </thead>
               <tbody>
                 <% clients.forEach((client, index) => { %>
-                  <tr class="client-row" style="animation: slideInUp 0.3s ease-out <%= index * 0.05 %>s both;">
+                  <tr class="client-row" data-index="<%= index %>">
                     <td class="client-info">
                       <div class="client-profile">
                         <div class="client-details">
@@ -224,10 +265,14 @@
                         <%= client.phone %>
                       </div>
                     </td>
-                    <td class="email-info">
-                      <div class="email-address">
-                        <i class="fas fa-envelope"></i>
-                        <%= client.email %>
+                    <td class="address-info">
+                      <div class="address">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <% if (client.address) { %>
+                          <%= client.address %>
+                        <% } else { %>
+                          <span class="no-data">Not specified</span>
+                        <% } %>
                       </div>
                     </td>
                     <td class="age-info">
@@ -286,7 +331,7 @@
                 <div class="pagination-controls">
                   <!-- First Page -->
                   <% if (pagination.currentPage > 1) { %>
-                    <a href="/clients?page=1" class="pagination-btn first" title="First Page">
+                    <a href="/clients?page=1<%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn first" title="First Page">
                       <i class="fas fa-angle-double-left"></i>
                     </a>
                   <% } else { %>
@@ -297,7 +342,7 @@
 
                   <!-- Previous Page -->
                   <% if (pagination.hasPrev) { %>
-                    <a href="/clients?page=<%= pagination.currentPage - 1 %>" class="pagination-btn prev" title="Previous Page">
+                    <a href="/clients?page=<%= pagination.currentPage - 1 %><%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn prev" title="Previous Page">
                       <i class="fas fa-angle-left"></i>
                     </a>
                   <% } else { %>
@@ -325,14 +370,14 @@
                       <% if (i === pagination.currentPage) { %>
                         <span class="pagination-btn current"><%= i %></span>
                       <% } else { %>
-                        <a href="/clients?page=<%= i %>" class="pagination-btn"><%= i %></a>
+                        <a href="/clients?page=<%= i %><%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn"><%= i %></a>
                       <% } %>
                     <% } %>
                   </div>
 
                   <!-- Next Page -->
                   <% if (pagination.hasNext) { %>
-                    <a href="/clients?page=<%= pagination.currentPage + 1 %>" class="pagination-btn next" title="Next Page">
+                    <a href="/clients?page=<%= pagination.currentPage + 1 %><%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn next" title="Next Page">
                       <i class="fas fa-angle-right"></i>
                     </a>
                   <% } else { %>
@@ -343,7 +388,7 @@
 
                   <!-- Last Page -->
                   <% if (pagination.currentPage < pagination.totalPages) { %>
-                    <a href="/clients?page=<%= pagination.totalPages %>" class="pagination-btn last" title="Last Page">
+                    <a href="/clients?page=<%= pagination.totalPages %><%= searchTerm ? '&search=' + encodeURIComponent(searchTerm) : '' %>" class="pagination-btn last" title="Last Page">
                       <i class="fas fa-angle-double-right"></i>
                     </a>
                   <% } else { %>
@@ -380,6 +425,13 @@
   <script>
     // Enhanced functionality
     document.addEventListener('DOMContentLoaded', function() {
+      // Apply animation delays to client rows
+      const clientRows = document.querySelectorAll('.client-row');
+      clientRows.forEach((row, index) => {
+        const delay = index * 0.05;
+        row.style.animation = `slideInUp 0.3s ease-out ${delay}s both`;
+      });
+      
       // Update current time
       function updateTime() {
         const now = new Date();

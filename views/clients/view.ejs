@@ -57,11 +57,23 @@
             </div>
             <span class="nav-text">Calendar</span>
           </a>
+          <a href="/treatments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-procedures"></i>
+            </div>
+            <span class="nav-text">Treatments</span>
+          </a>
           <a href="/services/manage" class="dashboard-nav-item">
             <div class="nav-icon">
               <i class="fas fa-tooth"></i>
             </div>
             <span class="nav-text">Services</span>
+          </a>
+          <a href="/treatments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-file-medical"></i>
+            </div>
+            <span class="nav-text">Treatments</span>
           </a>
         </div>
         
@@ -290,226 +302,446 @@
                 </div>
               </div>
             </div>
+
+            <!-- Professional Information Card -->
+            <div class="info-card professional-info">
+              <div class="info-card-header">
+                <div class="card-icon professional">
+                  <i class="fas fa-briefcase"></i>
+                </div>
+                <h3>Professional Information</h3>
+              </div>
+              <div class="info-card-content">
+                <% if (client.occupation) { %>
+                  <div class="info-item">
+                    <div class="info-icon">
+                      <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Occupation</label>
+                      <span><%= client.occupation %></span>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="info-item">
+                    <div class="info-icon">
+                      <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Occupation</label>
+                      <span class="no-data">Not specified</span>
+                    </div>
+                  </div>
+                <% } %>
+                
+                <% if (client.referred_by) { %>
+                  <div class="info-item">
+                    <div class="info-icon">
+                      <i class="fas fa-user-friends"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Referred By</label>
+                      <span><%= client.referred_by %></span>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="info-item">
+                    <div class="info-icon">
+                      <i class="fas fa-user-friends"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Referred By</label>
+                      <span class="no-data">Not specified</span>
+                    </div>
+                  </div>
+                <% } %>
+                
+                <% if (client.remarks) { %>
+                  <div class="info-item">
+                    <div class="info-icon">
+                      <i class="fas fa-star"></i>
+                    </div>
+                    <div class="info-details">
+                      <label>Patient Behavior</label>
+                      <span class="remarks-badge"><%= client.remarks %></span>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
           </div>
 
           <!-- Enhanced Medical Information Section -->
-          <% if (client.medical_history || client.notes) { %>
-            <div class="medical-info-section">
+          <div class="medical-info-section">
+            <div class="section-divider">
+              <span class="divider-text">
+                <i class="fas fa-notes-medical"></i>
+                Medical Information
+              </span>
+            </div>
+
+            <div class="medical-cards-grid">
+              <!-- Present Oral Complaint -->
+              <% if (client.present_oral_complaint) { %>
+                <div class="medical-card">
+                  <div class="medical-card-header">
+                    <div class="card-icon complaint">
+                      <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Present Oral Complaint</h3>
+                  </div>
+                  <div class="medical-card-content">
+                    <div class="medical-text">
+                      <%= client.present_oral_complaint %>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+
+              <!-- Comprehensive Medical Information -->
+              <% 
+                let medicalInfo = {};
+                try {
+                  medicalInfo = typeof client.medical_information === 'string' ? JSON.parse(client.medical_information || '{}') : client.medical_information || {};
+                } catch(e) {
+                  medicalInfo = {};
+                }
+              %>
+              <% if (Object.keys(medicalInfo).length > 0 || medicalInfo.underPhysicianCare || medicalInfo.conditions) { %>
+                <div class="medical-card">
+                  <div class="medical-card-header">
+                    <div class="card-icon medical">
+                      <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Medical Information</h3>
+                  </div>
+                  <div class="medical-card-content">
+                    <% if (medicalInfo.underPhysicianCare === 'yes') { %>
+                      <div class="medical-item">
+                        <strong>Under Physician Care:</strong> Yes
+                        <% if (medicalInfo.physicianName) { %>
+                          <div class="physician-details">
+                            <span>Dr. <%= medicalInfo.physicianName %></span>
+                            <% if (medicalInfo.physicianAddress) { %><br><span><%= medicalInfo.physicianAddress %></span><% } %>
+                            <% if (medicalInfo.physicianPhone) { %><br><span><%= medicalInfo.physicianPhone %></span><% } %>
+                          </div>
+                        <% } %>
+                      </div>
+                    <% } %>
+                    
+                    <% if (medicalInfo.hospitalized === 'yes') { %>
+                      <div class="medical-item">
+                        <strong>Previous Hospitalization:</strong> Yes
+                      </div>
+                    <% } %>
+                    
+                    <% if (medicalInfo.conditions && medicalInfo.conditions.length > 0) { %>
+                      <div class="medical-item">
+                        <strong>Medical Conditions:</strong>
+                        <div class="conditions-list">
+                          <% medicalInfo.conditions.forEach(condition => { %>
+                            <span class="condition-badge"><%= condition.replace('_', ' ') %></span>
+                          <% }); %>
+                        </div>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% } %>
+
+              <!-- Dental Information -->
+              <% 
+                let dentalInfo = {};
+                try {
+                  dentalInfo = typeof client.dental_information === 'string' ? JSON.parse(client.dental_information || '{}') : client.dental_information || {};
+                } catch(e) {
+                  dentalInfo = {};
+                }
+              %>
+              <% if (Object.keys(dentalInfo).length > 0 || dentalInfo.dentalHistory || dentalInfo.jawProblems) { %>
+                <div class="medical-card">
+                  <div class="medical-card-header">
+                    <div class="card-icon dental">
+                      <i class="fas fa-tooth"></i>
+                    </div>
+                    <h3>Dental Information</h3>
+                  </div>
+                  <div class="medical-card-content">
+                    <% if (dentalInfo.dentalHistory && dentalInfo.dentalHistory.length > 0) { %>
+                      <div class="medical-item">
+                        <strong>Previous Dental Treatments:</strong>
+                        <div class="treatments-list">
+                          <% dentalInfo.dentalHistory.forEach(treatment => { %>
+                            <span class="treatment-badge"><%= treatment.replace('_', ' ') %></span>
+                          <% }); %>
+                        </div>
+                      </div>
+                    <% } %>
+                    
+                    <% if (dentalInfo.jawProblems && dentalInfo.jawProblems.length > 0) { %>
+                      <div class="medical-item">
+                        <strong>Jaw Problems:</strong>
+                        <div class="problems-list">
+                          <% dentalInfo.jawProblems.forEach(problem => { %>
+                            <span class="problem-badge"><%= problem.replace('_', ' ') %></span>
+                          <% }); %>
+                        </div>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% } %>
+
+              <!-- Previous Dental Care -->
+              <% if (client.previous_dental_care || client.clinic_dentist) { %>
+                <div class="medical-card">
+                  <div class="medical-card-header">
+                    <div class="card-icon history">
+                      <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Previous Dental Care</h3>
+                  </div>
+                  <div class="medical-card-content">
+                    <% if (client.previous_dental_care) { %>
+                      <div class="medical-item">
+                        <strong>Treatment History:</strong>
+                        <div class="medical-text">
+                          <%= client.previous_dental_care %>
+                        </div>
+                      </div>
+                    <% } %>
+                    <% if (client.clinic_dentist) { %>
+                      <div class="medical-item">
+                        <strong>Previous Clinic/Dentist:</strong>
+                        <span><%= client.clinic_dentist %></span>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% } %>
+
+              <!-- Traditional Medical History -->
+              <% if (client.medical_history) { %>
+                <div class="medical-card">
+                  <div class="medical-card-header">
+                    <div class="card-icon medical">
+                      <i class="fas fa-notes-medical"></i>
+                    </div>
+                    <h3>Additional Medical History</h3>
+                    <div class="card-actions">
+                      <button class="action-btn small view" title="Expand">
+                        <i class="fas fa-expand"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="medical-card-content">
+                    <div class="medical-text">
+                      <%= client.medical_history %>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+
+              <!-- Additional Notes -->
+              <% if (client.notes) { %>
+                <div class="medical-card">
+                  <div class="medical-card-header">
+                    <div class="card-icon notes">
+                      <i class="fas fa-sticky-note"></i>
+                    </div>
+                    <h3>Additional Notes</h3>
+                    <div class="card-actions">
+                      <button class="action-btn small edit" title="Edit Notes">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="medical-card-content">
+                    <div class="medical-text">
+                      <%= client.notes %>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Dental Chart Section -->
+          <% 
+            let dentalChart = {};
+            try {
+              dentalChart = typeof client.dental_chart === 'string' ? JSON.parse(client.dental_chart || '{}') : client.dental_chart || {};
+            } catch(e) {
+              dentalChart = {};
+            }
+          %>
+          <% if (Object.keys(dentalChart).length > 0) { %>
+            <div class="dental-chart-section">
               <div class="section-divider">
                 <span class="divider-text">
-                  <i class="fas fa-notes-medical"></i>
-                  Medical Information
+                  <i class="fas fa-tooth"></i>
+                  Dental Chart
                 </span>
               </div>
+              
+              <div class="dental-chart-display">
+                <!-- Treatment Legend -->
+                <div class="treatment-legend-display">
+                  <div class="legend-item"><span class="legend-symbol c">C</span><span>Filling</span></div>
+                  <div class="legend-item"><span class="legend-symbol ii">II</span><span>Extraction</span></div>
+                  <div class="legend-item"><span class="legend-symbol x">X</span><span>Missing</span></div>
+                  <div class="legend-item"><span class="legend-symbol lc">LC</span><span>Composite</span></div>
+                  <div class="legend-item"><span class="legend-symbol am">AM</span><span>Amalgam</span></div>
+                  <div class="legend-item"><span class="legend-symbol se">Se</span><span>Sealants</span></div>
+                </div>
 
-              <div class="medical-cards-grid">
-                <% if (client.medical_history) { %>
-                  <div class="medical-card">
-                    <div class="medical-card-header">
-                      <div class="card-icon medical">
-                        <i class="fas fa-notes-medical"></i>
-                      </div>
-                      <h3>Medical History</h3>
-                      <div class="card-actions">
-                        <button class="action-btn small view" title="Expand">
-                          <i class="fas fa-expand"></i>
-                        </button>
-                      </div>
+                <!-- Dental Chart Display -->
+                <div class="dental-chart-grid">
+                  <!-- Upper Baby Teeth -->
+                  <div class="teeth-row upper-baby">
+                    <div class="teeth-numbers">
+                      <span>55</span><span>54</span><span>53</span><span>52</span><span>51</span>
+                      <span>61</span><span>62</span><span>63</span><span>64</span><span>65</span>
                     </div>
-                    <div class="medical-card-content">
-                      <div class="medical-text">
-                        <%= client.medical_history %>
-                      </div>
+                    <div class="teeth-visual">
+                      <% ['55', '54', '53', '52', '51', '61', '62', '63', '64', '65'].forEach(toothNum => { %>
+                        <div class="tooth-display <%= dentalChart[toothNum] ? 'has-treatment' : '' %>" data-number="<%= toothNum %>">
+                          <div class="tooth-circle">
+                            <%= dentalChart[toothNum] || '' %>
+                          </div>
+                        </div>
+                      <% }); %>
                     </div>
                   </div>
-                <% } %>
 
-                <% if (client.notes) { %>
-                  <div class="medical-card">
-                    <div class="medical-card-header">
-                      <div class="card-icon notes">
-                        <i class="fas fa-sticky-note"></i>
-                      </div>
-                      <h3>Additional Notes</h3>
-                      <div class="card-actions">
-                        <button class="action-btn small edit" title="Edit Notes">
-                          <i class="fas fa-edit"></i>
-                        </button>
-                      </div>
+                  <!-- Adult Upper Teeth -->
+                  <div class="teeth-row adult-upper">
+                    <div class="teeth-numbers">
+                      <span>18</span><span>17</span><span>16</span><span>15</span><span>14</span><span>13</span><span>12</span><span>11</span>
+                      <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span>
                     </div>
-                    <div class="medical-card-content">
-                      <div class="medical-text">
-                        <%= client.notes %>
-                      </div>
+                    <div class="teeth-visual">
+                      <% ['18', '17', '16', '15', '14', '13', '12', '11', '21', '22', '23', '24', '25', '26', '27', '28'].forEach(toothNum => { %>
+                        <div class="tooth-display <%= dentalChart[toothNum] ? 'has-treatment' : '' %>" data-number="<%= toothNum %>">
+                          <div class="tooth-circle">
+                            <%= dentalChart[toothNum] || '' %>
+                          </div>
+                        </div>
+                      <% }); %>
                     </div>
                   </div>
-                <% } %>
+
+                  <!-- Adult Lower Teeth -->
+                  <div class="teeth-row adult-lower">
+                    <div class="teeth-visual">
+                      <% ['48', '47', '46', '45', '44', '43', '42', '41', '31', '32', '33', '34', '35', '36', '37', '38'].forEach(toothNum => { %>
+                        <div class="tooth-display <%= dentalChart[toothNum] ? 'has-treatment' : '' %>" data-number="<%= toothNum %>">
+                          <div class="tooth-circle">
+                            <%= dentalChart[toothNum] || '' %>
+                          </div>
+                        </div>
+                      <% }); %>
+                    </div>
+                    <div class="teeth-numbers">
+                      <span>48</span><span>47</span><span>46</span><span>45</span><span>44</span><span>43</span><span>42</span><span>41</span>
+                      <span>31</span><span>32</span><span>33</span><span>34</span><span>35</span><span>36</span><span>37</span><span>38</span>
+                    </div>
+                  </div>
+
+                  <!-- Lower Baby Teeth -->
+                  <div class="teeth-row lower-baby">
+                    <div class="teeth-visual">
+                      <% ['85', '84', '83', '82', '81', '71', '72', '73', '74', '75'].forEach(toothNum => { %>
+                        <div class="tooth-display <%= dentalChart[toothNum] ? 'has-treatment' : '' %>" data-number="<%= toothNum %>">
+                          <div class="tooth-circle">
+                            <%= dentalChart[toothNum] || '' %>
+                          </div>
+                        </div>
+                      <% }); %>
+                    </div>
+                    <div class="teeth-numbers">
+                      <span>85</span><span>84</span><span>83</span><span>82</span><span>81</span>
+                      <span>71</span><span>72</span><span>73</span><span>74</span><span>75</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           <% } %>
         </div>
       </section>
 
-      <!-- Enhanced Appointment History Section -->
-      <section class="appointments-section">
+
+
+      <!-- Treatment Records and Billing Section -->
+      <section class="treatments-section">
         <div class="section-header">
           <div class="header-left">
             <h2 class="section-title">
-              <i class="fas fa-calendar-alt"></i>
-              Appointment History
+              <i class="fas fa-tooth"></i>
+              Treatment Records & Billing
             </h2>
-            <p class="section-subtitle">Complete record of patient visits and treatments</p>
+            <p class="section-subtitle">Complete treatment history with financial tracking</p>
           </div>
           <div class="header-right">
-            <div class="appointment-filters">
-              <select class="filter-select" id="statusFilter">
-                <option value="">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-              <select class="filter-select" id="yearFilter">
-                <option value="">All Years</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-              </select>
-            </div>
-            <a href="/appointments/add?client_id=<%= client.id %>" class="dashboard-btn primary">
+            <a href="/treatments/add?client_id=<%= client.id %>" class="dashboard-btn primary">
               <i class="fas fa-plus"></i>
-              New Appointment
+              Add Treatment
+            </a>
+            <a href="/treatments" class="dashboard-btn">
+              <i class="fas fa-list"></i>
+              All Treatments
             </a>
           </div>
         </div>
-        
-        <% if (appointments && appointments.length > 0) { %>
-          <div class="appointments-table-wrapper enhanced">
-            <div class="table-info-bar">
-              <div class="table-stats">
-                <span class="total-count">
-                  <i class="fas fa-calendar-check"></i>
-                  <span id="appointmentCount"><%= appointments.length %></span> appointments
-                </span>
-                <span class="success-rate">
-                  <i class="fas fa-chart-line"></i>
-                  Success Rate: <span id="successRate">
-                    <%= appointments.length > 0 ? Math.round((appointments.filter(apt => apt.status.toLowerCase() === 'completed').length / appointments.length) * 100) : 0 %>%
-                  </span>
-                </span>
-              </div>
-              <div class="table-actions">
-                <button class="dashboard-btn small" id="exportBtn">
-                  <i class="fas fa-download"></i>
-                  Export
-                </button>
-              </div>
-            </div>
 
-            <table class="appointments-table enhanced">
-              <thead>
-                <tr>
-                  <th><i class="fas fa-calendar"></i> Date & Time</th>
-                  <th><i class="fas fa-tooth"></i> Service</th>
-                  <th><i class="fas fa-check-circle"></i> Status</th>
-                  <th><i class="fas fa-notes-medical"></i> Notes</th>
-                  <th><i class="fas fa-cogs"></i> Actions</th>
-                </tr>
-              </thead>
-              <tbody id="appointmentsTableBody">
-                <% appointments.forEach((appointment, index) => { %>
-                  <tr class="appointment-row animate-slide-in" data-status="<%= appointment.status.toLowerCase() %>" data-year="<%= new Date(appointment.appointment_time).getFullYear() %>">
-                    <td class="datetime-info">
-                      <div class="date-display">
-                        <span class="date-primary">
-                          <%= new Date(appointment.appointment_time).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'short', 
-                            day: 'numeric' 
-                          }) %>
-                        </span>
-                        <span class="time-secondary">
-                          <%= new Date(appointment.appointment_time).toLocaleTimeString('en-US', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          }) %>
-                        </span>
-                        <span class="day-name">
-                          <%= new Date(appointment.appointment_time).toLocaleDateString('en-US', { weekday: 'short' }) %>
-                        </span>
-                      </div>
-                    </td>
-                    <td class="service-info">
-                      <div class="service-display">
-                        <i class="fas fa-tooth service-icon"></i>
-                        <span class="service-name"><%= appointment.service_name %></span>
-                      </div>
-                    </td>
-                    <td class="status-info">
-                      <span class="status-badge enhanced <%= appointment.status.toLowerCase() %>">
-                        <i class="fas fa-<%= appointment.status.toLowerCase() === 'completed' ? 'check' : appointment.status.toLowerCase() === 'pending' ? 'clock' : 'times' %>"></i>
-                        <%= appointment.status %>
-                      </span>
-                    </td>
-                    <td class="notes-info">
-                      <% if (appointment.notes) { %>
-                        <div class="notes-preview expandable" title="Click to expand">
-                          <span class="notes-text">
-                            <%= appointment.notes.length > 50 ? appointment.notes.substring(0, 50) + '...' : appointment.notes %>
-                          </span>
-                          <% if (appointment.notes.length > 50) { %>
-                            <button class="expand-btn">
-                              <i class="fas fa-chevron-down"></i>
-                            </button>
-                          <% } %>
-                        </div>
-                        <div class="notes-full" style="display: none;">
-                          <%= appointment.notes %>
-                        </div>
-                      <% } else { %>
-                        <span class="no-data">No notes</span>
-                      <% } %>
-                    </td>
-                    <td class="actions-cell">
-                      <div class="action-buttons">
-                        <a href="/appointments/edit/<%= appointment.id %>" class="action-btn edit" title="Edit Appointment">
-                          <i class="fas fa-edit"></i>
-                        </a>
-                        <button type="button" class="action-btn view" title="View Details" onclick="viewAppointmentDetails(<%= appointment.id %>)">
-                          <i class="fas fa-eye"></i>
-                        </button>
-                        <button type="button" class="action-btn copy" title="Copy Details" onclick="copyAppointmentDetails(<%= appointment.id %>)">
-                          <i class="fas fa-copy"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-        <% } else { %>
-          <div class="no-data-state enhanced">
-            <div class="no-data-content">
-              <div class="no-data-animation">
-                <div class="no-data-icon">
-                  <i class="fas fa-calendar-times"></i>
-                </div>
-                <div class="pulse-ring"></div>
-              </div>
-              <h3>No appointments found</h3>
-              <p>This patient hasn't had any appointments yet. Schedule their first visit to get started with their treatment journey.</p>
-              <div class="no-data-actions">
-                <a href="/appointments/add?client_id=<%= client.id %>" class="dashboard-btn primary large">
-                  <i class="fas fa-calendar-plus"></i>
-                  Schedule First Appointment
-                </a>
-                <a href="/clients" class="dashboard-btn secondary">
-                  <i class="fas fa-arrow-left"></i>
-                  Back to Clients
-                </a>
-              </div>
+        <!-- Financial Summary Cards -->
+        <div class="financial-summary-cards">
+          <div class="summary-card" id="totalTreatments">
+            <div class="card-icon treatments">
+              <i class="fas fa-tooth"></i>
+            </div>
+            <div class="card-content">
+              <span class="card-value">0</span>
+              <span class="card-label">Total Treatments</span>
             </div>
           </div>
-        <% } %>
+          <div class="summary-card" id="totalCharges">
+            <div class="card-icon charges">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="card-content">
+              <span class="card-value">$0.00</span>
+              <span class="card-label">Total Charges</span>
+            </div>
+          </div>
+          <div class="summary-card" id="totalPaid">
+            <div class="card-icon paid">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="card-content">
+              <span class="card-value">$0.00</span>
+              <span class="card-label">Total Paid</span>
+            </div>
+          </div>
+          <div class="summary-card" id="totalBalance">
+            <div class="card-icon balance">
+              <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="card-content">
+              <span class="card-value">$0.00</span>
+              <span class="card-label">Outstanding Balance</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Treatment Records Table -->
+        <div class="treatments-table-container" id="treatmentsContainer">
+          <div class="loading-placeholder">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Loading treatment records...</span>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -525,6 +757,9 @@
   <script>
     // Enhanced functionality
     document.addEventListener('DOMContentLoaded', function() {
+      // Load treatment records for this client
+      loadTreatmentRecords();
+
       // Update current time
       function updateTime() {
         const now = new Date();
@@ -585,55 +820,6 @@
         });
       });
 
-      // Filter functionality
-      const statusFilter = document.getElementById('statusFilter');
-      const yearFilter = document.getElementById('yearFilter');
-      const appointmentRows = document.querySelectorAll('.appointment-row');
-
-      function filterAppointments() {
-        const statusValue = statusFilter.value.toLowerCase();
-        const yearValue = yearFilter.value;
-        let visibleCount = 0;
-
-        appointmentRows.forEach(row => {
-          const rowStatus = row.dataset.status;
-          const rowYear = row.dataset.year;
-          
-          const statusMatch = !statusValue || rowStatus === statusValue;
-          const yearMatch = !yearValue || rowYear === yearValue;
-          
-          if (statusMatch && yearMatch) {
-            row.style.display = '';
-            visibleCount++;
-          } else {
-            row.style.display = 'none';
-          }
-        });
-
-        // Update count
-        const countElement = document.getElementById('appointmentCount');
-        if (countElement) {
-          countElement.textContent = visibleCount;
-        }
-      }
-
-      if (statusFilter) statusFilter.addEventListener('change', filterAppointments);
-      if (yearFilter) yearFilter.addEventListener('change', filterAppointments);
-
-      // Notes expansion
-      document.querySelectorAll('.notes-preview.expandable').forEach(preview => {
-        preview.addEventListener('click', function() {
-          const notesText = this.querySelector('.notes-text');
-          const fullNotes = this.nextElementSibling;
-          const expandBtn = this.querySelector('.expand-btn i');
-          
-          if (fullNotes.style.display === 'none') {
-            fullNotes.style.display = 'block';
-            this.style.display = 'none';
-          }
-        });
-      });
-
       // Add entrance animations with staggered timing
       const animatedElements = document.querySelectorAll('.animate-slide-in');
       animatedElements.forEach((element, index) => {
@@ -683,25 +869,157 @@
       }, 3000);
     }
 
-    // Appointment details functions
-    function viewAppointmentDetails(appointmentId) {
-      showToast('Viewing appointment details...', 'info');
-      // Add modal or navigation logic here
+    // Load treatment records for the client
+    function loadTreatmentRecords() {
+      const clientId = '<%= client.id %>';
+      
+      fetch(`/treatments/client/${clientId}`)
+        .then(response => response.json())
+        .then(data => {
+          updateFinancialSummary(data.summary);
+          renderTreatmentRecords(data.treatments);
+        })
+        .catch(error => {
+          console.error('Error loading treatment records:', error);
+          document.getElementById('treatmentsContainer').innerHTML = 
+            '<div class="error-state"><i class="fas fa-exclamation-triangle"></i><span>Failed to load treatment records</span></div>';
+        });
     }
 
-    function copyAppointmentDetails(appointmentId) {
-      // Get appointment row data and copy to clipboard
-      const row = document.querySelector(`[onclick="copyAppointmentDetails(${appointmentId})"]`).closest('tr');
-      const date = row.querySelector('.date-primary').textContent;
-      const time = row.querySelector('.time-secondary').textContent;
-      const service = row.querySelector('.service-name').textContent;
-      const status = row.querySelector('.status-badge').textContent.trim();
+    // Update financial summary cards
+    function updateFinancialSummary(summary) {
+      document.querySelector('#totalTreatments .card-value').textContent = summary.totalTreatments;
+      document.querySelector('#totalCharges .card-value').textContent = '$' + summary.totalCharges.toFixed(2);
+      document.querySelector('#totalPaid .card-value').textContent = '$' + summary.totalPaid.toFixed(2);
+      document.querySelector('#totalBalance .card-value').textContent = '$' + summary.totalBalance.toFixed(2);
       
-      const details = `Appointment Details:\nDate: ${date}\nTime: ${time}\nService: ${service}\nStatus: ${status}`;
+      // Update balance card styling based on amount
+      const balanceCard = document.getElementById('totalBalance');
+      if (summary.totalBalance > 0) {
+        balanceCard.classList.add('has-balance');
+        balanceCard.querySelector('.card-icon i').className = 'fas fa-exclamation-circle';
+      } else {
+        balanceCard.classList.add('paid-full');
+        balanceCard.querySelector('.card-icon i').className = 'fas fa-check-circle';
+      }
+    }
+
+    // Render treatment records table
+    function renderTreatmentRecords(treatments) {
+      const container = document.getElementById('treatmentsContainer');
       
-      navigator.clipboard.writeText(details).then(() => {
-        showToast('Appointment details copied!', 'success');
-      });
+      if (!treatments || treatments.length === 0) {
+        container.innerHTML = `
+          <div class="no-data-state">
+            <div class="no-data-content">
+              <div class="no-data-icon">
+                <i class="fas fa-tooth"></i>
+              </div>
+              <h3>No treatment records found</h3>
+              <p>No treatments have been recorded for this patient yet.</p>
+              <a href="/treatments/add?client_id=<%= client.id %>" class="dashboard-btn primary">
+                <i class="fas fa-plus"></i>
+                Add First Treatment
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const tableHTML = `
+        <table class="treatments-table">
+          <thead>
+            <tr>
+              <th><i class="fas fa-calendar"></i> Date</th>
+              <th><i class="fas fa-tooth"></i> Tooth #</th>
+              <th><i class="fas fa-notes-medical"></i> Description</th>
+              <th><i class="fas fa-user-md"></i> Dentist</th>
+              <th><i class="fas fa-dollar-sign"></i> Charge</th>
+              <th><i class="fas fa-credit-card"></i> Paid</th>
+              <th><i class="fas fa-balance-scale"></i> Balance</th>
+              <th><i class="fas fa-cogs"></i> Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${treatments.map(treatment => `
+              <tr class="treatment-row ${treatment.balance > 0 ? 'has-balance' : 'paid'}">
+                <td class="date-cell">
+                  ${new Date(treatment.date_performed).toLocaleDateString()}
+                </td>
+                <td class="tooth-cell">
+                  ${treatment.tooth_number || '-'}
+                </td>
+                <td class="description-cell">
+                  <div class="description-text" title="${treatment.description}">
+                    ${treatment.description.length > 40 ? 
+                      treatment.description.substring(0, 40) + '...' : 
+                      treatment.description}
+                  </div>
+                </td>
+                <td class="dentist-cell">
+                  ${treatment.dentist || '-'}
+                </td>
+                <td class="amount-cell">
+                  $${treatment.charge.toFixed(2)}
+                </td>
+                <td class="amount-cell paid">
+                  $${treatment.paid.toFixed(2)}
+                </td>
+                <td class="amount-cell ${treatment.balance > 0 ? 'balance' : 'paid'}">
+                  $${treatment.balance.toFixed(2)}
+                </td>
+                <td class="actions-cell">
+                  <div class="action-buttons">
+                    <a href="/treatments/view/${treatment.id}" class="action-btn view" title="View Details">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/treatments/edit/${treatment.id}" class="action-btn edit" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    ${treatment.balance > 0 ? `
+                      <button onclick="showQuickPayment(${treatment.id}, ${treatment.balance})" 
+                              class="action-btn pay" title="Add Payment">
+                        <i class="fas fa-dollar-sign"></i>
+                      </button>
+                    ` : ''}
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      
+      container.innerHTML = tableHTML;
+    }
+
+    // Quick payment modal
+    function showQuickPayment(treatmentId, balance) {
+      const amount = prompt(`Add payment for treatment (Max: $${balance.toFixed(2)}):`);
+      if (amount && parseFloat(amount) > 0 && parseFloat(amount) <= balance) {
+        const notes = prompt('Payment notes (optional):') || '';
+        
+        fetch(`/treatments/payment/${treatmentId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `amount=${amount}&notes=${encodeURIComponent(notes)}`
+        })
+        .then(response => {
+          if (response.ok) {
+            showToast('Payment recorded successfully!', 'success');
+            loadTreatmentRecords(); // Refresh the table
+          } else {
+            throw new Error('Payment failed');
+          }
+        })
+        .catch(error => {
+          showToast('Failed to record payment', 'error');
+          console.error('Payment error:', error);
+        });
+      }
     }
   </script>
 </body>

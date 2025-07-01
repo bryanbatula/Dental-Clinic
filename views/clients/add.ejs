@@ -57,6 +57,12 @@
             </div>
             <span class="nav-text">Calendar</span>
           </a>
+          <a href="/treatments" class="dashboard-nav-item">
+            <div class="nav-icon">
+              <i class="fas fa-procedures"></i>
+            </div>
+            <span class="nav-text">Treatments</span>
+          </a>
           <a href="/services/manage" class="dashboard-nav-item">
             <div class="nav-icon">
               <i class="fas fa-tooth"></i>
@@ -108,7 +114,7 @@
             <i class="fas fa-user-plus title-icon"></i>
             New Client Registration
           </h1>
-          <p class="dashboard-subtitle">Add a new patient to your clinic's database with complete information</p>
+          <p class="dashboard-subtitle">Complete dental examination and patient registration form</p>
         </div>
         <div class="header-actions">
           <div class="current-time" id="currentTime">
@@ -124,17 +130,7 @@
 
       <!-- Enhanced Form Section -->
       <section class="form-section">
-        <div class="form-container">
-          <div class="form-header">
-            <div class="form-icon">
-              <i class="fas fa-user-plus"></i>
-            </div>
-            <div class="form-title-section">
-              <h2>Patient Information</h2>
-              <p>Please fill in all required fields to create a new patient record</p>
-            </div>
-          </div>
-
+        <div class="dental-form-container">
           <% if (typeof error !== 'undefined' && error) { %>
             <div class="alert alert-error">
               <i class="fas fa-exclamation-triangle"></i>
@@ -142,91 +138,334 @@
             </div>
           <% } %>
           
-          <form class="enhanced-form" action="/clients/add" method="POST">
-            <div class="form-grid">
-              <!-- Personal Information Section -->
-              <div class="form-section-group">
-                <h3 class="section-group-title">
-                  <i class="fas fa-user"></i>
-                  Personal Information
-                </h3>
-                
+          <form class="dental-registration-form" action="/clients/add" method="POST">
+            
+            <!-- Patient Information Section -->
+            <div class="form-section-card">
+              <div class="section-header">
+                <h2><i class="fas fa-user"></i> Patient Information</h2>
+              </div>
+              
+              <div class="form-grid-3">
                 <div class="form-group">
-                  <label for="name">
-                    <i class="fas fa-user"></i>
-                    Full Name *
-                  </label>
-                  <input type="text" id="name" name="name" value="<%= typeof formData !== 'undefined' ? formData.name : '' %>" required placeholder="Enter patient's full name">
+                  <label for="name">Name *</label>
+                  <input type="text" id="name" name="name" value="<%= typeof formData !== 'undefined' ? formData.name : '' %>" required>
                 </div>
 
-                <div class="form-row">
                   <div class="form-group">
-                    <label for="email">
-                      <i class="fas fa-envelope"></i>
-                      Email Address
-                    </label>
-                    <input type="email" id="email" name="email" value="<%= typeof formData !== 'undefined' ? formData.email : '' %>" placeholder="patient@email.com">
+                  <label for="address">Address</label>
+                  <input type="text" id="address" name="address" value="<%= typeof formData !== 'undefined' ? formData.address : '' %>">
                   </div>
 
                   <div class="form-group">
-                    <label for="phone">
-                      <i class="fas fa-phone"></i>
-                      Phone Number *
-                    </label>
-                    <input type="tel" id="phone" name="phone" value="<%= typeof formData !== 'undefined' ? formData.phone : '' %>" required placeholder="+63 (905) 123-4567">
+                  <label for="phone">Phone</label>
+                  <input type="tel" id="phone" name="phone" value="<%= typeof formData !== 'undefined' ? formData.phone : '' %>">
                   </div>
                 </div>
 
+              <div class="form-grid-4">
                 <div class="form-group">
-                  <label for="dob">
-                    <i class="fas fa-birthday-cake"></i>
-                    Date of Birth
-                  </label>
+                  <label for="dob">Birth Date</label>
                   <input type="date" id="dob" name="dob" value="<%= typeof formData !== 'undefined' ? formData.dob : '' %>">
                 </div>
 
                 <div class="form-group">
-                  <label for="address">
-                    <i class="fas fa-map-marker-alt"></i>
-                    Address
-                  </label>
-                  <textarea id="address" name="address" rows="2" placeholder="Enter patient's full address"><%= typeof formData !== 'undefined' ? formData.address : '' %></textarea>
+                  <label for="age">Age</label>
+                  <input type="number" id="age" name="age" readonly>
+                </div>
+                
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" name="email" value="<%= typeof formData !== 'undefined' ? formData.email : '' %>">
+                </div>
+                
+                <div class="form-group">
+                  <label for="referredBy">Referred By</label>
+                  <input type="text" id="referredBy" name="referredBy" value="<%= typeof formData !== 'undefined' ? formData.referredBy : '' %>">
                 </div>
               </div>
 
-              <!-- Medical Information Section -->
-              <div class="form-section-group">
-                <h3 class="section-group-title">
-                  <i class="fas fa-heartbeat"></i>
-                  Medical Information
-                </h3>
-
+              <div class="form-grid-2">
                 <div class="form-group">
-                  <label for="medicalHistory">
-                    <i class="fas fa-notes-medical"></i>
-                    Medical History
-                  </label>
-                  <textarea id="medicalHistory" name="medicalHistory" rows="4" placeholder="Enter any relevant medical history, allergies, medications, previous treatments, etc."><%= typeof formData !== 'undefined' ? formData.medicalHistory : '' %></textarea>
-                  <small class="form-help">Include allergies, current medications, chronic conditions, previous surgeries, etc.</small>
+                  <label for="occupation">Occupation</label>
+                  <input type="text" id="occupation" name="occupation" value="<%= typeof formData !== 'undefined' ? formData.occupation : '' %>">
                 </div>
 
-                <div class="form-group">
-                  <label for="notes">
-                    <i class="fas fa-sticky-note"></i>
-                    Additional Notes
-                  </label>
-                  <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes about the patient (preferences, special instructions, etc.)"><%= typeof formData !== 'undefined' ? formData.notes : '' %></textarea>
+                <!-- <div class="form-group">
+                  <label for="remarks">Remarks</label>
+                  <select id="remarks" name="remarks">
+                    <option value="Excellent">Excellent</option>
+                    <option value="Very Good">Very Good</option>
+                    <option value="Good" selected>Good</option>
+                    <option value="Fair">Fair</option>
+                    <option value="Poor">Poor</option>
+                    <option value="Needs Improvement">Needs Improvement</option>
+                  </select>
+                </div> -->
+              </div>
+            </div>
+
+            <!-- Dental Chart Section -->
+            <div class="form-section-card">
+              <div class="section-header">
+                <h2><i class="fas fa-tooth"></i> Dentition Status and Treatment Needs</h2>
+              </div>
+              
+              <!-- Treatment Legend -->
+              <div class="treatment-legend">
+                <div class="legend-item" data-treatment="C">
+                  <span class="legend-symbol c">C</span>
+                  <span>Indicated for Filling</span>
+                </div>
+                <div class="legend-item" data-treatment="II">
+                  <span class="legend-symbol ii">II</span>
+                  <span>Indicated for Extraction</span>
+                </div>
+                <div class="legend-item" data-treatment="X">
+                  <span class="legend-symbol x">X</span>
+                  <span>Missing Tooth</span>
+                </div>
+                <div class="legend-item" data-treatment="LC">
+                  <span class="legend-symbol lc">LC</span>
+                  <span>Composite Filling</span>
+                </div>
+                <div class="legend-item" data-treatment="AM">
+                  <span class="legend-symbol am">AM</span>
+                  <span>Amalgam Filling</span>
+                </div>
+                <div class="legend-item" data-treatment="Se">
+                  <span class="legend-symbol se">Se</span>
+                  <span>Sealants</span>
+                </div>
+                <div class="legend-item" data-treatment="IMO">
+                  <span class="legend-symbol imo">IMO</span>
+                  <span>Impacted Tooth</span>
+                </div>
+                <div class="legend-item" data-treatment="FB">
+                  <span class="legend-symbol fb">FB</span>
+                  <span>Fixed Bridge Crown</span>
+                </div>
+                <div class="legend-item" data-treatment="JC">
+                  <span class="legend-symbol jc">JC</span>
+                  <span>Jacket Crown</span>
+                </div>
+                <div class="legend-item" data-treatment="PM">
+                  <span class="legend-symbol pm">PM</span>
+                  <span>Removable Denture</span>
+                </div>
+              </div>
+
+              <!-- Dental Chart -->
+              <div class="dental-chart">
+                <!-- Upper Baby Teeth -->
+                <div class="teeth-row upper-baby">
+                  <div class="teeth-numbers">
+                    <span>55</span><span>54</span><span>53</span><span>52</span><span>51</span>
+                    <span>61</span><span>62</span><span>63</span><span>64</span><span>65</span>
+                  </div>
+                  <div class="teeth-visual">
+                    <div class="tooth" data-number="55"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="54"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="53"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="52"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="51"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="61"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="62"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="63"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="64"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="65"><div class="tooth-circle"></div></div>
+                  </div>
+                </div>
+
+                <!-- Adult Upper Teeth -->
+                <div class="teeth-row adult-upper">
+                  <div class="teeth-numbers">
+                    <span>18</span><span>17</span><span>16</span><span>15</span><span>14</span><span>13</span><span>12</span><span>11</span>
+                    <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span>
+                  </div>
+                  <div class="teeth-visual">
+                    <div class="tooth" data-number="18"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="17"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="16"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="15"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="14"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="13"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="12"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="11"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="21"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="22"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="23"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="24"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="25"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="26"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="27"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="28"><div class="tooth-circle"></div></div>
+                  </div>
+                </div>
+
+                <!-- Adult Lower Teeth -->
+                <div class="teeth-row adult-lower">
+                  <div class="teeth-visual">
+                    <div class="tooth" data-number="48"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="47"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="46"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="45"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="44"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="43"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="42"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="41"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="31"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="32"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="33"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="34"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="35"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="36"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="37"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="38"><div class="tooth-circle"></div></div>
+                  </div>
+                  <div class="teeth-numbers">
+                    <span>48</span><span>47</span><span>46</span><span>45</span><span>44</span><span>43</span><span>42</span><span>41</span>
+                    <span>31</span><span>32</span><span>33</span><span>34</span><span>35</span><span>36</span><span>37</span><span>38</span>
+                  </div>
+                </div>
+
+                <!-- Lower Baby Teeth -->
+                <div class="teeth-row lower-baby">
+                  <div class="teeth-visual">
+                    <div class="tooth" data-number="85"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="84"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="83"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="82"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="81"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="71"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="72"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="73"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="74"><div class="tooth-circle"></div></div>
+                    <div class="tooth" data-number="75"><div class="tooth-circle"></div></div>
+                  </div>
+                  <div class="teeth-numbers">
+                    <span>85</span><span>84</span><span>83</span><span>82</span><span>81</span>
+                    <span>71</span><span>72</span><span>73</span><span>74</span><span>75</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Present Oral Complaint -->
+              <div class="form-group">
+                <label for="presentOralComplaint">Present Oral Complaint</label>
+                <textarea id="presentOralComplaint" name="presentOralComplaint" rows="3" placeholder="Describe the patient's current oral complaints or symptoms..."><%= typeof formData !== 'undefined' ? formData.presentOralComplaint : '' %></textarea>
+              </div>
+            </div>
+
+            <!-- Medical Information Section -->
+            <div class="form-section-card">
+              <div class="section-header">
+                <h2><i class="fas fa-heartbeat"></i> Medical Information</h2>
+              </div>
+              
+              <div class="checkbox-grid">
+                <div class="checkbox-group">
+                  <label>Are you now under the care of a physician?</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="underPhysicianCare" value="yes"> Yes</label>
+                    <label><input type="radio" name="underPhysicianCare" value="no"> No</label>
+                  </div>
+                  <div class="physician-details">
+                    <input type="text" name="physicianName" placeholder="Physician Name">
+                    <input type="text" name="physicianAddress" placeholder="Address">
+                    <input type="text" name="physicianPhone" placeholder="Phone">
+                  </div>
+                </div>
+                
+                <div class="checkbox-group">
+                  <label>Have you been hospitalized for any surgical operation or serious illness?</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="hospitalized" value="yes"> Yes</label>
+                    <label><input type="radio" name="hospitalized" value="no"> No</label>
+                  </div>
+                </div>
+                
+                <div class="conditions-checklist">
+                  <p>Do you have or have you any of the following conditions or problems:</p>
+                  <div class="conditions-grid">
+                    <label><input type="checkbox" name="conditions" value="heart_problem"> Heart problem</label>
+                    <label><input type="checkbox" name="conditions" value="high_blood_pressure"> High blood pressure</label>
+                    <label><input type="checkbox" name="conditions" value="headaches"> Headaches</label>
+                    <label><input type="checkbox" name="conditions" value="allergies"> Allergies</label>
+                    <label><input type="checkbox" name="conditions" value="bleeding_gums"> Bleeding gums</label>
+                    <label><input type="checkbox" name="conditions" value="sinus_problems"> Sinus problems</label>
+                    <label><input type="checkbox" name="conditions" value="diabetes"> Diabetes</label>
+                    <label><input type="checkbox" name="conditions" value="pregnant"> Pregnant</label>
+                    <label><input type="checkbox" name="conditions" value="self_medication"> Self-medication</label>
+                  </div>
                 </div>
               </div>
             </div>
 
+            <!-- Dental Information Section -->
+            <div class="form-section-card">
+              <div class="section-header">
+                <h2><i class="fas fa-tooth"></i> Dental Information</h2>
+              </div>
+              
+              <div class="dental-questions">
+                <div class="question-group">
+                  <p>Have you ever had...</p>
+                  <div class="dental-grid">
+                    <label><input type="checkbox" name="dentalHistory" value="orthodontic_treatment"> 1. Orthodontic Treatment (braces)</label>
+                    <label><input type="checkbox" name="dentalHistory" value="oral_surgery"> 2. Oral Surgery</label>
+                    <label><input type="checkbox" name="dentalHistory" value="gum_treatment"> 3. Gum Treatment</label>
+                    <label><input type="checkbox" name="dentalHistory" value="losing_teeth"> 4. Loosing of your Teeth</label>
+                  </div>
+                </div>
+                
+                <div class="question-group">
+                  <p>Problem of the jaw. Have you any ever experience?</p>
+                  <div class="dental-grid">
+                    <label><input type="checkbox" name="jawProblems" value="clicking_jaw"> Clicking of the jaw</label>
+                    <label><input type="checkbox" name="jawProblems" value="pain_joint"> Pain (joint, ear, side of face)</label>
+                    <label><input type="checkbox" name="jawProblems" value="difficulty_chewing"> Difficulty in opening, closing chewing</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Previous Dental Care Section -->
+            <div class="form-section-card">
+              <div class="section-header">
+                <h2><i class="fas fa-history"></i> Previous Dental Care</h2>
+              </div>
+              
+              <div class="form-group">
+                <label for="previousDentalCare">Previous Dental Care</label>
+                <textarea id="previousDentalCare" name="previousDentalCare" rows="3" placeholder="Describe previous dental treatments, date of last dental visit, etc..."><%= typeof formData !== 'undefined' ? formData.previousDentalCare : '' %></textarea>
+              </div>
+              
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="clinicDentist">Clinic/Dentist</label>
+                  <input type="text" id="clinicDentist" name="clinicDentist" value="<%= typeof formData !== 'undefined' ? formData.clinicDentist : '' %>" placeholder="Previous clinic or dentist">
+                </div>
+
+                <div class="form-group">
+                  <label for="medicalHistory">Additional Medical History</label>
+                  <textarea id="medicalHistory" name="medicalHistory" rows="2" placeholder="Any additional medical information..."><%= typeof formData !== 'undefined' ? formData.medicalHistory : '' %></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hidden fields for data -->
+            <input type="hidden" id="dentalChartData" name="dentalChart" value="">
+            <input type="hidden" id="medicalInfoData" name="medicalInformation" value="">
+            <input type="hidden" id="dentalInfoData" name="dentalInformation" value="">
+
             <!-- Form Actions -->
             <div class="form-actions">
-              <button type="submit" class="dashboard-btn primary">
+              <button type="submit" class="dashboard-btn primary large">
                 <i class="fas fa-user-plus"></i>
-                <span>Add Client</span>
+                <span>Register Patient</span>
               </button>
-              <a href="/clients" class="dashboard-btn secondary">
+              <a href="/clients" class="dashboard-btn secondary large">
                 <i class="fas fa-times"></i>
                 <span>Cancel</span>
               </a>
@@ -238,7 +477,6 @@
   </div>
 
   <script>
-    // Enhanced functionality
     document.addEventListener('DOMContentLoaded', function() {
       // Update current time
       function updateTime() {
@@ -260,32 +498,116 @@
       updateTime();
       setInterval(updateTime, 60000);
 
-      // Form validation enhancements
-      const form = document.querySelector('.enhanced-form');
-      const inputs = form.querySelectorAll('input, textarea');
+      // Age calculation
+      const dobInput = document.getElementById('dob');
+      const ageInput = document.getElementById('age');
       
-      inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-          this.parentElement.classList.add('focused');
-        });
-        
-        input.addEventListener('blur', function() {
-          this.parentElement.classList.remove('focused');
-          if (this.value) {
-            this.parentElement.classList.add('has-value');
-          } else {
-            this.parentElement.classList.remove('has-value');
+      function calculateAge() {
+        if (dobInput.value) {
+          const today = new Date();
+          const birthDate = new Date(dobInput.value);
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
           }
-        });
-        
-        // Check if input already has value on page load
-        if (input.value) {
-          input.parentElement.classList.add('has-value');
+          
+          ageInput.value = age >= 0 ? age : '';
+        } else {
+          ageInput.value = '';
         }
+      }
+      
+      dobInput.addEventListener('change', calculateAge);
+      calculateAge();
+
+      // Dental Chart Functionality
+      let dentalChart = {};
+      let currentTreatment = 'C';
+      
+      // Treatment selector
+      document.querySelectorAll('.legend-item').forEach(item => {
+        item.addEventListener('click', function() {
+          document.querySelectorAll('.legend-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          currentTreatment = this.dataset.treatment;
+        });
+      });
+      
+      // Set default treatment
+      document.querySelector('.legend-item').classList.add('active');
+      
+      // Tooth click functionality
+      document.querySelectorAll('.tooth-circle').forEach(circle => {
+        circle.addEventListener('click', function() {
+          const tooth = this.parentElement;
+          const toothNumber = tooth.dataset.number;
+          
+          if (dentalChart[toothNumber] === currentTreatment) {
+            // Remove treatment if clicking the same treatment
+            delete dentalChart[toothNumber];
+            this.classList.remove('marked');
+            this.textContent = '';
+          } else {
+            // Apply new treatment
+            dentalChart[toothNumber] = currentTreatment;
+            this.classList.add('marked');
+            this.textContent = currentTreatment;
+          }
+          
+          // Update hidden field
+          document.getElementById('dentalChartData').value = JSON.stringify(dentalChart);
+        });
+      });
+
+      // Form submission handling
+      const form = document.querySelector('.dental-registration-form');
+      form.addEventListener('submit', function(e) {
+        // Collect medical information
+        const medicalInfo = {};
+        
+        // Radio buttons
+        const underCare = document.querySelector('input[name="underPhysicianCare"]:checked');
+        if (underCare) medicalInfo.underPhysicianCare = underCare.value;
+        
+        const hospitalized = document.querySelector('input[name="hospitalized"]:checked');
+        if (hospitalized) medicalInfo.hospitalized = hospitalized.value;
+        
+        // Physician details
+        medicalInfo.physicianName = document.querySelector('input[name="physicianName"]').value;
+        medicalInfo.physicianAddress = document.querySelector('input[name="physicianAddress"]').value;
+        medicalInfo.physicianPhone = document.querySelector('input[name="physicianPhone"]').value;
+        
+        // Conditions checkboxes
+        const conditions = [];
+        document.querySelectorAll('input[name="conditions"]:checked').forEach(cb => {
+          conditions.push(cb.value);
+        });
+        medicalInfo.conditions = conditions;
+        
+        document.getElementById('medicalInfoData').value = JSON.stringify(medicalInfo);
+        
+        // Collect dental information
+        const dentalInfo = {};
+        
+        const dentalHistory = [];
+        document.querySelectorAll('input[name="dentalHistory"]:checked').forEach(cb => {
+          dentalHistory.push(cb.value);
+        });
+        dentalInfo.dentalHistory = dentalHistory;
+        
+        const jawProblems = [];
+        document.querySelectorAll('input[name="jawProblems"]:checked').forEach(cb => {
+          jawProblems.push(cb.value);
+        });
+        dentalInfo.jawProblems = jawProblems;
+        
+        document.getElementById('dentalInfoData').value = JSON.stringify(dentalInfo);
       });
 
       // Add entrance animation
-      document.querySelector('.form-container').style.animation = 'slideInUp 0.6s ease-out';
+      document.querySelector('.dental-form-container').style.animation = 'slideInUp 0.6s ease-out';
     });
   </script>
 </body>

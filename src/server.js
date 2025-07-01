@@ -47,6 +47,7 @@ const appointmentsRoutes = require('../routes/appointments');
 const servicesRoutes = require('../routes/services');
 const remindersRoutes = require('../routes/reminders');
 const reportsRoutes = require('../routes/reports');
+const treatmentsRoutes = require('../routes/treatments');
 const authRoutes = require('../routes/auth');
 app.use('/', mainRoutes);
 app.use(authRoutes);
@@ -63,6 +64,7 @@ app.use('/appointments', requireAuth, appointmentsRoutes);
 app.use('/services', requireAuth, servicesRoutes);
 app.use('/reminders', requireAuth, remindersRoutes);
 app.use('/reports', requireAuth, reportsRoutes);
+app.use('/treatments', requireAuth, treatmentsRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -82,6 +82,57 @@ const Appointment = {
     `);
     return res.rows;
   },
+  async getAllPaginatedWithSearch(page = 1, limit = 10, searchTerm = '') {
+    const offset = (page - 1) * limit;
+    
+    let whereClause = '';
+    let queryParams = [limit, offset];
+    let countParams = [];
+    
+    if (searchTerm && searchTerm.trim()) {
+      whereClause = 'WHERE (LOWER(c.name) LIKE LOWER($3) OR LOWER(s.name) LIKE LOWER($3))';
+      const searchPattern = `%${searchTerm.trim()}%`;
+      queryParams.push(searchPattern);
+      countParams.push(searchPattern);
+    }
+    
+    // Get total count
+    const countQuery = searchTerm && searchTerm.trim() 
+      ? `SELECT COUNT(*) as total FROM appointments a
+         JOIN clients c ON a.client_id = c.id
+         JOIN services s ON a.service = s.id
+         WHERE (LOWER(c.name) LIKE LOWER($1) OR LOWER(s.name) LIKE LOWER($1))`
+      : 'SELECT COUNT(*) as total FROM appointments';
+    
+    const countRes = await pool.query(countQuery, countParams);
+    const total = parseInt(countRes.rows[0].total);
+    
+    // Get paginated results with joins
+    const dataQuery = `
+      SELECT a.*, c.name as client_name, s.name as service_name
+      FROM appointments a
+      JOIN clients c ON a.client_id = c.id
+      JOIN services s ON a.service = s.id
+      ${whereClause}
+      ORDER BY a.appointment_time DESC
+      LIMIT $1 OFFSET $2
+    `;
+    
+    const res = await pool.query(dataQuery, queryParams);
+    
+    return {
+      appointments: res.rows,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        itemsPerPage: limit,
+        hasNext: page < Math.ceil(total / limit),
+        hasPrev: page > 1
+      },
+      searchTerm: searchTerm
+    };
+  }
 };
 
 module.exports = Appointment; 
