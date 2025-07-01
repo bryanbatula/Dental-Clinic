@@ -36,9 +36,32 @@ router.get('/home', (req, res) => {
 });
 
 // Dashboard page (protected)
-router.get('/dashboard', (req, res) => {
+router.get('/dashboard', async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
-  res.render('dashboard', { title: 'Dashboard', user: req.session.user });
+  
+  try {
+    const stats = await getDashboardStats();
+    res.render('dashboard', { 
+      title: 'Dashboard', 
+      user: req.session.user,
+      stats: stats
+    });
+  } catch (error) {
+    console.error('Error loading dashboard stats:', error);
+    // Fallback to default stats if database query fails
+    const defaultStats = {
+      totalClients: 0,
+      totalAppointments: 0,
+      todayAppointments: 0,
+      clientSatisfaction: 0,
+      pendingReminders: 0
+    };
+    res.render('dashboard', { 
+      title: 'Dashboard', 
+      user: req.session.user,
+      stats: defaultStats
+    });
+  }
 });
 
 // API endpoint for dashboard statistics
@@ -72,7 +95,14 @@ async function getDashboardStats() {
        COUNT(CASE WHEN status = 'Cancelled' THEN 1 END) as cancelled,
        COUNT(*) as total
      FROM appointments 
-     WHERE appointment_time >= CURRENT_DATE - INTERVAL '30 days'`
+     WHERE appointment_time >= CURRENT_DATE - INTERVAL '30 days'`,
+    
+    // Pending reminders (upcoming appointments in next 7 days that need reminders)
+    `SELECT COUNT(*) as pending_reminders 
+     FROM appointments 
+     WHERE appointment_time BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
+     AND status IN ('Scheduled', 'Confirmed')
+     AND appointment_time > NOW()`
   ];
 
   const results = await Promise.all(queries.map(query => pool.query(query)));
@@ -88,7 +118,8 @@ async function getDashboardStats() {
     totalClients: parseInt(results[0].rows[0].total_clients),
     totalAppointments: parseInt(results[1].rows[0].total_appointments),
     todayAppointments: parseInt(results[2].rows[0].today_appointments),
-    clientSatisfaction: satisfactionRate
+    clientSatisfaction: satisfactionRate,
+    pendingReminders: parseInt(results[4].rows[0].pending_reminders || 0)
   };
 }
 

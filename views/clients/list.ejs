@@ -16,7 +16,7 @@
           <i class="fas fa-user-md"></i>
         </div>
         <div class="user-details">
-          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <h3 class="user-name"><%= user.username %></h3>
           <p class="user-role">Clinic Administrator</p>
           <div class="user-status">
             <span class="status-indicator active"></span>
@@ -106,11 +106,14 @@
             <i class="fas fa-chevron-right"></i>
             <span class="breadcrumb-item current">Clients</span>
           </div>
-          <h1 class="dashboard-title">
-            <i class="fas fa-users title-icon"></i>
-            Client Management
-          </h1>
-          <p class="dashboard-subtitle">Manage patient records, contact information, and medical history</p>
+          <div class="title-section">
+            <h1 class="dashboard-title">
+              <i class="fas fa-users title-icon"></i>
+              Client Management
+            </h1>
+            <span class="title-separator">|</span>
+            <p class="dashboard-subtitle">Manage patient records, contact information, and medical history</p>
+          </div>
         </div>
         <div class="header-actions">
           <div class="search-container">

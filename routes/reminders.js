@@ -34,6 +34,18 @@ router.get('/api/reminders', async (req, res) => {
   }
 });
 
+// API endpoint for pending reminders count
+router.get('/api/pending-count', async (req, res) => {
+  try {
+    const upcomingAppointments = await Appointment.getUpcoming();
+    const pendingCount = upcomingAppointments.length;
+    res.json({ pendingReminders: pendingCount });
+  } catch (error) {
+    console.error('Error loading pending reminders count:', error);
+    res.status(500).json({ error: 'Failed to load pending reminders count' });
+  }
+});
+
 // API endpoint for reminder settings
 router.get('/api/settings', async (req, res) => {
   try {

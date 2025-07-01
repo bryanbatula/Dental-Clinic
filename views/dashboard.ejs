@@ -16,7 +16,7 @@
           <i class="fas fa-user-md"></i>
         </div>
         <div class="user-details">
-          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <h3 class="user-name"><%= user.username %></h3>
           <p class="user-role">Clinic Administrator</p>
           <div class="user-status">
             <span class="status-indicator active"></span>
@@ -117,7 +117,7 @@
             <i class="far fa-clock"></i>
             <span></span>
           </div>
-          <button id="refreshStatsBtn" class="dashboard-btn primary" onclick="dashboardManager.refresh()">
+          <button id="refreshStatsBtn" class="dashboard-btn primary" onclick="refreshDashboardStats()">
             <i class="fas fa-sync-alt"></i>
             <span>Refresh</span>
           </button>
@@ -140,11 +140,11 @@
               <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-value" data-target="0">0</div>
+              <div class="stat-value" data-target="<%= stats.totalClients %>">0</div>
               <div class="stat-label">Total Clients</div>
               <div class="stat-trend">
-                <i class="fas fa-arrow-up"></i>
-                <span>+12% this month</span>
+                <i class="fas fa-users"></i>
+                <span>Registered patients</span>
               </div>
             </div>
           </div>
@@ -154,11 +154,11 @@
               <i class="fas fa-calendar-check"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-value" data-target="0">0</div>
+              <div class="stat-value" data-target="<%= stats.totalAppointments %>">0</div>
               <div class="stat-label">Total Appointments</div>
               <div class="stat-trend">
-                <i class="fas fa-arrow-up"></i>
-                <span>+8% this week</span>
+                <i class="fas fa-calendar"></i>
+                <span>All time bookings</span>
               </div>
             </div>
           </div>
@@ -168,11 +168,11 @@
               <i class="fas fa-calendar-day"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-value" data-target="0">0</div>
+              <div class="stat-value" data-target="<%= stats.todayAppointments %>">0</div>
               <div class="stat-label">Today's Appointments</div>
               <div class="stat-trend">
                 <i class="fas fa-clock"></i>
-                <span>Next at 2:00 PM</span>
+                <span><%= stats.todayAppointments > 0 ? 'Scheduled for today' : 'No appointments today' %></span>
               </div>
             </div>
           </div>
@@ -182,11 +182,11 @@
               <i class="fas fa-heart"></i>
             </div>
             <div class="stat-content">
-              <div class="stat-value" data-target="0">0%</div>
-              <div class="stat-label">Client Satisfaction</div>
+              <div class="stat-value" data-target="<%= stats.clientSatisfaction %>"><%= stats.clientSatisfaction %>%</div>
+              <div class="stat-label">Completion Rate</div>
               <div class="stat-trend">
-                <i class="fas fa-arrow-up"></i>
-                <span>Excellent rating</span>
+                <i class="fas fa-<%= stats.clientSatisfaction >= 80 ? 'arrow-up' : stats.clientSatisfaction >= 60 ? 'minus' : 'arrow-down' %>"></i>
+                <span><%= stats.clientSatisfaction >= 80 ? 'Excellent' : stats.clientSatisfaction >= 60 ? 'Good' : 'Needs improvement' %></span>
               </div>
             </div>
           </div>
@@ -287,9 +287,11 @@
               <div class="action-icon">
                 <i class="fas fa-bell"></i>
               </div>
+              <% if (stats.pendingReminders > 0) { %>
               <div class="action-notification">
-                <span>3</span>
+                <span><%= stats.pendingReminders %></span>
               </div>
+              <% } %>
             </div>
             <div class="action-content">
               <h3 class="action-title">Patient Reminders</h3>
@@ -319,7 +321,6 @@
     </main>
   </div>
 
-  <script src="/js/dashboard.js"></script>
   <script>
     // Enhanced dashboard functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -349,28 +350,37 @@
         const statValues = document.querySelectorAll('.stat-value[data-target]');
         statValues.forEach(stat => {
           const target = parseInt(stat.getAttribute('data-target')) || 0;
-          const current = parseInt(stat.textContent) || 0;
+          const duration = 2000; // 2 seconds
+          const startTime = Date.now();
+          const startValue = parseInt(stat.textContent) || 0;
           
-          if (target !== current) {
-            const increment = Math.ceil(target / 30);
-            let value = 0;
+          function updateValue() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
             
-            const timer = setInterval(() => {
-              value += increment;
-              if (value >= target) {
-                value = target;
-                clearInterval(timer);
-              }
-              
-              if (stat.textContent.includes('%')) {
-                stat.textContent = value + '%';
-              } else {
-                stat.textContent = value.toLocaleString();
-              }
-            }, 50);
+            // Easing function for smooth animation
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const currentValue = Math.round(startValue + (target - startValue) * easeOutQuart);
+            
+            if (stat.textContent.includes('%')) {
+              stat.textContent = currentValue + '%';
+            } else {
+              stat.textContent = currentValue.toLocaleString();
+            }
+            
+            if (progress < 1) {
+              requestAnimationFrame(updateValue);
+            }
+          }
+          
+          if (target !== startValue) {
+            requestAnimationFrame(updateValue);
           }
         });
       }
+      
+      // Start animation after a short delay
+      setTimeout(animateStatValues, 500);
       
       // Add entrance animations
       const cards = document.querySelectorAll('.stat-card, .action-card');
@@ -378,7 +388,7 @@
         card.style.animation = `slideInUp 0.6s ease-out ${index * 0.1}s both`;
       });
       
-      // Add hover sound effect (optional)
+      // Add hover effects
       const actionCards = document.querySelectorAll('.action-card');
       actionCards.forEach(card => {
         card.addEventListener('mouseenter', function() {
@@ -391,6 +401,141 @@
       });
     });
     
+    // Global function for refreshing dashboard statistics
+    async function refreshDashboardStats() {
+      const refreshBtn = document.getElementById('refreshStatsBtn');
+      const refreshIcon = refreshBtn.querySelector('i');
+      
+      // Show loading state
+      refreshBtn.disabled = true;
+      refreshIcon.classList.add('fa-spin');
+      
+      try {
+        const response = await fetch('/api/dashboard-stats');
+        const stats = await response.json();
+        
+        if (response.ok) {
+          // Update stat values with new data
+          updateStatCard('clients', stats.totalClients, 'Registered patients');
+          updateStatCard('appointments', stats.totalAppointments, 'All time bookings');
+          updateStatCard('today', stats.todayAppointments, 
+            stats.todayAppointments > 0 ? 'Scheduled for today' : 'No appointments today');
+          updateStatCard('satisfaction', stats.clientSatisfaction, 
+            stats.clientSatisfaction >= 80 ? 'Excellent' : 
+            stats.clientSatisfaction >= 60 ? 'Good' : 'Needs improvement', true);
+          
+          // Update reminders notification
+          updateRemindersNotification(stats.pendingReminders);
+          
+          // Show success feedback
+          showNotification('Dashboard updated successfully!', 'success');
+        } else {
+          throw new Error('Failed to fetch stats');
+        }
+      } catch (error) {
+        console.error('Error refreshing stats:', error);
+        showNotification('Failed to refresh dashboard. Please try again.', 'error');
+      } finally {
+        // Reset button state
+        refreshBtn.disabled = false;
+        refreshIcon.classList.remove('fa-spin');
+      }
+    }
+    
+    // Helper function to update individual stat cards
+    function updateStatCard(cardClass, newValue, trendText, isPercentage = false) {
+      const card = document.querySelector(`.stat-card.${cardClass}`);
+      if (card) {
+        const valueElement = card.querySelector('.stat-value');
+        const trendElement = card.querySelector('.stat-trend span');
+        
+        if (valueElement) {
+          valueElement.setAttribute('data-target', newValue);
+          // Animate to new value
+          animateSingleStat(valueElement, newValue, isPercentage);
+        }
+        
+        if (trendElement) {
+          trendElement.textContent = trendText;
+        }
+        
+        // Update trend icon for satisfaction
+        if (cardClass === 'satisfaction') {
+          const trendIcon = card.querySelector('.stat-trend i');
+          if (trendIcon) {
+            trendIcon.className = `fas fa-${newValue >= 80 ? 'arrow-up' : newValue >= 60 ? 'minus' : 'arrow-down'}`;
+          }
+        }
+      }
+    }
+    
+    // Helper function to animate a single stat
+    function animateSingleStat(element, target, isPercentage = false) {
+      const startValue = parseInt(element.textContent) || 0;
+      const duration = 1500;
+      const startTime = Date.now();
+      
+      function updateValue() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentValue = Math.round(startValue + (target - startValue) * easeOutQuart);
+        
+        element.textContent = isPercentage ? currentValue + '%' : currentValue.toLocaleString();
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateValue);
+        }
+      }
+      
+      requestAnimationFrame(updateValue);
+    }
+    
+    // Helper function to update reminders notification
+    function updateRemindersNotification(count) {
+      const reminderCard = document.querySelector('.action-card[href="/reminders"]');
+      if (reminderCard) {
+        let notification = reminderCard.querySelector('.action-notification');
+        
+        if (count > 0) {
+          if (!notification) {
+            notification = document.createElement('div');
+            notification.className = 'action-notification';
+            notification.innerHTML = `<span>${count}</span>`;
+            reminderCard.querySelector('.action-header').appendChild(notification);
+          } else {
+            notification.querySelector('span').textContent = count;
+            notification.style.display = '';
+          }
+        } else if (notification) {
+          notification.style.display = 'none';
+        }
+      }
+    }
+    
+    // Simple notification system
+    function showNotification(message, type = 'info') {
+      // Remove existing notifications
+      const existing = document.querySelector('.dashboard-notification');
+      if (existing) existing.remove();
+      
+      const notification = document.createElement('div');
+      notification.className = `dashboard-notification ${type}`;
+      notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Auto remove after 3 seconds
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 3000);
+    }
+    
     // Add slide-in animation keyframes
     const style = document.createElement('style');
     style.textContent = `
@@ -402,6 +547,84 @@
         to {
           opacity: 1;
           transform: translateY(0);
+        }
+      }
+      
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      
+      .pulse-animation {
+        animation: pulse 0.6s ease-in-out 3;
+      }
+      
+      .action-notification {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      
+      .dashboard-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 16px 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 1000;
+        font-weight: 500;
+        animation: slideInRight 0.3s ease-out;
+      }
+      
+      .dashboard-notification.success {
+        border-left: 4px solid #10b981;
+        color: #065f46;
+      }
+      
+      .dashboard-notification.error {
+        border-left: 4px solid #ef4444;
+        color: #7f1d1d;
+      }
+      
+      .dashboard-notification.info {
+        border-left: 4px solid #3b82f6;
+        color: #1e3a8a;
+      }
+      
+      .dashboard-notification i {
+        font-size: 18px;
+      }
+      
+      .dashboard-notification.success i {
+        color: #10b981;
+      }
+      
+      .dashboard-notification.error i {
+        color: #ef4444;
+      }
+      
+      .dashboard-notification.info i {
+        color: #3b82f6;
+      }
+      
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
         }
       }
     `;

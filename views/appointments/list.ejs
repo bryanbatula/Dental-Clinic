@@ -16,7 +16,7 @@
           <i class="fas fa-user-md"></i>
         </div>
         <div class="user-details">
-          <h3 class="user-name">Dr. <%= user.username %></h3>
+          <h3 class="user-name"><%= user.username %></h3>
           <p class="user-role">Clinic Administrator</p>
           <div class="user-status">
             <span class="status-indicator active"></span>
@@ -106,11 +106,14 @@
             <i class="fas fa-chevron-right"></i>
             <span class="breadcrumb-item current">Appointments</span>
           </div>
-          <h1 class="dashboard-title">
-            <i class="fas fa-calendar-alt title-icon"></i>
-            Appointment Management
-          </h1>
-          <p class="dashboard-subtitle">Schedule, manage, and track all patient appointments</p>
+          <div class="title-section">
+            <h1 class="dashboard-title">
+              <i class="fas fa-calendar-alt title-icon"></i>
+              Appointment Management
+            </h1>
+            <span class="title-separator">|</span>
+            <p class="dashboard-subtitle">Schedule, manage, and track all patient appointments</p>
+          </div>
         </div>
         <div class="header-actions">
           <div class="search-container">
@@ -137,14 +140,14 @@
               </button>
             </form>
           </div>
-                              <div class="current-time" id="currentTime">
-                        <i class="far fa-clock"></i>
-                        <span></span>
-                    </div>
-                    <a href="/appointments/add" class="dashboard-btn primary">
+                              <a href="/appointments/add" class="dashboard-btn primary">
                         <i class="fas fa-calendar-plus"></i>
                         <span>New Appointment</span>
                     </a>
+                    <div class="current-time" id="currentTime">
+                        <i class="far fa-clock"></i>
+                        <span></span>
+                    </div>
                     <a href="/appointments/calendar" class="dashboard-btn secondary">
                         <i class="fas fa-calendar-week"></i>
                         <span>Calendar View</span>
@@ -259,17 +262,17 @@
                   <tr class="appointment-row" style="animation: slideInUp 0.3s ease-out <%= index * 0.05 %>s both;">
                     <td class="datetime-info">
                       <div class="date-display">
-                        <span class="date-primary">
+                        <span class="time-primary">
+                          <%= new Date(appointment.appointment_time).toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          }) %>
+                        </span>
+                        <span class="date-secondary">
                           <%= new Date(appointment.appointment_time).toLocaleDateString('en-US', { 
                             year: 'numeric', 
                             month: 'short', 
                             day: 'numeric' 
-                          }) %>
-                        </span>
-                        <span class="time-secondary">
-                          <%= new Date(appointment.appointment_time).toLocaleTimeString('en-US', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
                           }) %>
                         </span>
                       </div>
