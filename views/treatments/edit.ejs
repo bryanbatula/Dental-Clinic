@@ -169,13 +169,13 @@
                                     <label for="toothNumber">Tooth Number:</label>
                                     <input type="text" id="toothNumber" name="toothNumber" 
                                            value="<%= treatment.tooth_number || '' %>"
-                                           placeholder="e.g., 18, 55, etc.">
+                                           placeholder="e.g., 18, 55, etc." maxlength="20">
                                 </div>
                             </div>
 
                 <div class="form-group">
-                    <label for="description">Treatment Description: <span class="required">*</span></label>
-                    <textarea id="description" name="description" rows="3" required 
+                    <label for="description">Treatment Description:</label>
+                    <textarea id="description" name="description" rows="3" 
                               placeholder="Describe the treatment performed..."><%= treatment.description %></textarea>
                 </div>
 

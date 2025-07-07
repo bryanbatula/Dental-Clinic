@@ -77,13 +77,16 @@ const Treatment = {
     
     const balance = parseFloat(charge || 0) - parseFloat(paid || 0);
     
+    // Validate and trim tooth number
+    const validatedToothNumber = toothNumber ? toothNumber.toString().trim().substring(0, 20) : null;
+    
     const res = await pool.query(
       `INSERT INTO treatment_records (
         client_id, date_performed, tooth_number, description, 
         charge, paid, balance, dentist, notes, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) RETURNING *`,
       [
-        clientId, datePerformed, toothNumber || null, description,
+        clientId, datePerformed, validatedToothNumber, description || null,
         parseFloat(charge || 0), parseFloat(paid || 0), balance,
         dentist || null, notes || null
       ]
@@ -99,13 +102,16 @@ const Treatment = {
     
     const balance = parseFloat(charge || 0) - parseFloat(paid || 0);
     
+    // Validate and trim tooth number
+    const validatedToothNumber = toothNumber ? toothNumber.toString().trim().substring(0, 20) : null;
+    
     const res = await pool.query(
       `UPDATE treatment_records SET 
         client_id = $1, date_performed = $2, tooth_number = $3, description = $4,
         charge = $5, paid = $6, balance = $7, dentist = $8, notes = $9
       WHERE id = $10 RETURNING *`,
       [
-        clientId, datePerformed, toothNumber || null, description,
+        clientId, datePerformed, validatedToothNumber, description || null,
         parseFloat(charge || 0), parseFloat(paid || 0), balance,
         dentist || null, notes || null, id
       ]

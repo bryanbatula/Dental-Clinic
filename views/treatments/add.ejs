@@ -170,13 +170,13 @@
                   <label for="toothNumber">Tooth Number:</label>
                   <input type="text" id="toothNumber" name="toothNumber" 
                          value="<%= formData ? formData.toothNumber || '' : '' %>"
-                         placeholder="e.g., 18, 55, etc.">
+                         placeholder="e.g., 18, 55, etc." maxlength="20">
                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="description">Treatment Description: <span class="required">*</span></label>
-                                <textarea id="description" name="description" rows="4" required 
+                                <label for="description">Treatment Description:</label>
+                                <textarea id="description" name="description" rows="4" 
                                           placeholder="Describe the treatment performed..."><%= formData ? formData.description || '' : '' %></textarea>
                             </div>
 
@@ -299,20 +299,12 @@
         // Form validation enhancement
         document.querySelector('.treatment-registration-form').addEventListener('submit', function(e) {
             const clientId = document.getElementById('clientId').value;
-            const description = document.getElementById('description').value.trim();
             const charge = document.getElementById('charge').value;
 
             if (!clientId) {
                 e.preventDefault();
                 document.getElementById('clientId').focus();
                 showToast('Please select a client', 'error');
-                return;
-            }
-
-            if (!description) {
-                e.preventDefault();
-                document.getElementById('description').focus();
-                showToast('Please enter a treatment description', 'error');
                 return;
             }
 

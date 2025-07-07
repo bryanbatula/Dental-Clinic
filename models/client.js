@@ -65,7 +65,7 @@ const Client = {
         referred_by, occupation, remarks
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *`,
       [
-        name, email, phone, dob || null, address || null, medicalHistory || null, notes || null,
+        name, email || null, phone || null, dob || null, address || null, medicalHistory || null, notes || null,
         dentalChart || '{}', presentOralComplaint || null, medicalInformation || '{}',
         dentalInformation || '{}', previousDentalCare || null, clinicDentist || null,
         referredBy || null, occupation || null, remarks || 'Good'
@@ -89,7 +89,7 @@ const Client = {
         referred_by = $14, occupation = $15, remarks = $16
       WHERE id = $17 RETURNING *`,
       [
-        name, email, phone, dob || null, address || null, medicalHistory || null, notes || null,
+        name, email || null, phone || null, dob || null, address || null, medicalHistory || null, notes || null,
         dentalChart || '{}', presentOralComplaint || null, medicalInformation || '{}',
         dentalInformation || '{}', previousDentalCare || null, clinicDentist || null,
         referredBy || null, occupation || null, remarks || 'Good', id

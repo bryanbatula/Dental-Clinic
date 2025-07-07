@@ -265,7 +265,11 @@
                     <td class="contact-info">
                       <div class="phone-number">
                         <i class="fas fa-phone-alt"></i>
-                        <%= client.phone %>
+                        <% if (client.phone) { %>
+                          <%= client.phone %>
+                        <% } else { %>
+                          <span class="no-data">Not specified</span>
+                        <% } %>
                       </div>
                     </td>
                     <td class="address-info">
