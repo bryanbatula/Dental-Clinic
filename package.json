@@ -6,7 +6,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "init-db": "node config/init-db.js"
+    "init-db": "node config/init-db.js",
+    "electron": "cd electron && npm run electron",
+    "electron-dev": "cd electron && npm run electron-dev",
+    "build-desktop": "cd electron && npm run build",
+    "pack-desktop": "cd electron && npm run pack",
+    "install-electron": "cd electron && npm install"
   },
   "keywords": [],
   "author": "",
