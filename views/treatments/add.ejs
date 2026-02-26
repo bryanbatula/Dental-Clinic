@@ -6,6 +6,111 @@
     <title>Add Treatment Record | Clinic Management</title>
     <link rel="stylesheet" href="/assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Searchable Select Styles */
+        .searchable-select-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .searchable-select-input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .searchable-select-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .searchable-select-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            pointer-events: none;
+            transition: transform 0.2s ease;
+        }
+
+        .searchable-select-container.open .searchable-select-arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .searchable-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .searchable-select-container.open .searchable-select-dropdown {
+            display: block;
+        }
+
+        .dropdown-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f9fafb;
+        }
+
+        .dropdown-option.selected {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .dropdown-option.hidden {
+            display: none;
+        }
+
+        .client-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .client-name {
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .client-phone {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .no-results {
+            padding: 12px 16px;
+            text-align: center;
+            color: #6b7280;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-wrapper">
@@ -148,15 +253,25 @@
                             
                             <div class="form-group">
                                 <label for="clientId">Client: <span class="required">*</span></label>
-                                <select id="clientId" name="clientId" required>
-                                    <option value="">Select a client...</option>
-                                                      <% clients.forEach(client => { %>
-                    <option value="<%= client.id %>" 
-                            <%= formData && formData.clientId == client.id ? 'selected' : '' %>>
-                      <%= client.name %> - <%= client.phone %>
-                    </option>
-                  <% }); %>
-                                </select>
+                                <div class="searchable-select-container">
+                                    <input type="text" id="clientSearch" class="searchable-select-input" 
+                                           placeholder="Search for a client..." autocomplete="off">
+                                    <div class="searchable-select-dropdown" id="clientDropdown">
+                                        <div class="dropdown-option" data-value="">Select a client...</div>
+                                        <% clients.forEach(client => { %>
+                                            <div class="dropdown-option" data-value="<%= client.id %>" 
+                                                 data-name="<%= client.name %>" data-phone="<%= client.phone || '' %>"
+                                                 <%= formData && formData.clientId == client.id ? 'data-selected="true"' : '' %>>
+                                                <div class="client-info">
+                                                    <div class="client-name"><%= client.name %></div>
+                                                    <div class="client-phone"><%= client.phone || 'No phone' %></div>
+                                                </div>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                    <input type="hidden" id="clientId" name="clientId" required>
+                                    <i class="fas fa-chevron-down searchable-select-arrow"></i>
+                                </div>
                             </div>
 
                             <div class="form-grid-2">
@@ -262,8 +377,8 @@
             updateTime();
             setInterval(updateTime, 60000); // Update every minute
 
-            // Auto-focus first input
-            document.getElementById('clientId').focus();
+            // Initialize searchable select
+            initializeSearchableSelect();
         });
 
         // Auto-calculate balance
@@ -284,17 +399,137 @@
         // Calculate initial balance
         calculateBalance();
 
-        // Client selection enhancement
-        document.getElementById('clientId').addEventListener('change', function() {
-            if (this.value) {
-                // Add visual feedback for client selection
-                this.style.borderColor = '#10b981';
-                this.style.backgroundColor = '#f0fdf4';
-            } else {
-                this.style.borderColor = '';
-                this.style.backgroundColor = '';
+        // Searchable Select Functionality
+        function initializeSearchableSelect() {
+            const container = document.querySelector('.searchable-select-container');
+            const input = document.getElementById('clientSearch');
+            const dropdown = document.getElementById('clientDropdown');
+            const hiddenInput = document.getElementById('clientId');
+            const options = dropdown.querySelectorAll('.dropdown-option');
+            
+            let isOpen = false;
+            
+            // Check for pre-selected value
+            const preSelected = dropdown.querySelector('[data-selected="true"]');
+            if (preSelected) {
+                const clientName = preSelected.dataset.name;
+                const clientPhone = preSelected.dataset.phone;
+                input.value = `${clientName} - ${clientPhone}`;
+                hiddenInput.value = preSelected.dataset.value;
+                preSelected.classList.add('selected');
             }
-        });
+            
+            // Toggle dropdown
+            function toggleDropdown() {
+                isOpen = !isOpen;
+                container.classList.toggle('open', isOpen);
+                if (isOpen) {
+                    input.focus();
+                    filterOptions('');
+                }
+            }
+            
+            // Close dropdown
+            function closeDropdown() {
+                isOpen = false;
+                container.classList.remove('open');
+            }
+            
+            // Filter options based on search
+            function filterOptions(searchTerm) {
+                const term = searchTerm.toLowerCase();
+                let hasVisibleOptions = false;
+                
+                options.forEach(option => {
+                    if (option.dataset.value === '') {
+                        option.classList.toggle('hidden', term !== '');
+                        if (term === '') hasVisibleOptions = true;
+                        return;
+                    }
+                    
+                    const name = option.dataset.name.toLowerCase();
+                    const phone = option.dataset.phone.toLowerCase();
+                    const matches = name.includes(term) || phone.includes(term);
+                    
+                    option.classList.toggle('hidden', !matches);
+                    if (matches) hasVisibleOptions = true;
+                });
+                
+                // Show no results message
+                let noResultsMsg = dropdown.querySelector('.no-results');
+                if (!hasVisibleOptions && term !== '') {
+                    if (!noResultsMsg) {
+                        noResultsMsg = document.createElement('div');
+                        noResultsMsg.className = 'no-results';
+                        noResultsMsg.textContent = 'No clients found';
+                        dropdown.appendChild(noResultsMsg);
+                    }
+                    noResultsMsg.style.display = 'block';
+                } else if (noResultsMsg) {
+                    noResultsMsg.style.display = 'none';
+                }
+            }
+            
+            // Select option
+            function selectOption(option) {
+                // Clear previous selection
+                options.forEach(opt => opt.classList.remove('selected'));
+                
+                if (option.dataset.value === '') {
+                    input.value = '';
+                    hiddenInput.value = '';
+                } else {
+                    const clientName = option.dataset.name;
+                    const clientPhone = option.dataset.phone;
+                    input.value = `${clientName} - ${clientPhone}`;
+                    hiddenInput.value = option.dataset.value;
+                    option.classList.add('selected');
+                }
+                
+                closeDropdown();
+            }
+            
+            // Event listeners
+            input.addEventListener('click', toggleDropdown);
+            input.addEventListener('input', (e) => {
+                if (!isOpen) toggleDropdown();
+                filterOptions(e.target.value);
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                } else if (e.key === 'ArrowDown' && isOpen) {
+                    e.preventDefault();
+                    const visibleOptions = Array.from(options).filter(opt => !opt.classList.contains('hidden'));
+                    if (visibleOptions.length > 0) {
+                        visibleOptions[0].focus();
+                    }
+                }
+            });
+            
+            // Option click handlers
+            options.forEach(option => {
+                option.addEventListener('click', () => selectOption(option));
+                option.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectOption(option);
+                    }
+                });
+                option.setAttribute('tabindex', '0');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+            
+            // Focus the search input initially
+            input.focus();
+        }
 
         // Form validation enhancement
         document.querySelector('.treatment-registration-form').addEventListener('submit', function(e) {
@@ -303,7 +538,7 @@
 
             if (!clientId) {
                 e.preventDefault();
-                document.getElementById('clientId').focus();
+                document.getElementById('clientSearch').focus();
                 showToast('Please select a client', 'error');
                 return;
             }

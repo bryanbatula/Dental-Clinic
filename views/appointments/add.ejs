@@ -6,6 +6,112 @@
   <title>Schedule Appointment | Clinic Management</title>
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* Searchable Select Styles */
+    .searchable-select-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .searchable-select-input {
+      width: 100%;
+      padding: 12px 40px 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .searchable-select-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .searchable-select-arrow {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      pointer-events: none;
+      transition: transform 0.2s ease;
+    }
+
+    .searchable-select-container.open .searchable-select-arrow {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .searchable-select-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .searchable-select-container.open .searchable-select-dropdown {
+      display: block;
+    }
+
+    .dropdown-option {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .dropdown-option:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-option:hover {
+      background-color: #f9fafb;
+    }
+
+    .dropdown-option.selected {
+      background-color: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .dropdown-option.hidden {
+      display: none;
+    }
+
+    .client-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .client-name {
+      font-weight: 500;
+      color: #111827;
+    }
+
+    .client-email {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .dropdown-option.selected .client-name {
+      color: #1d4ed8;
+    }
+
+    .dropdown-option.selected .client-email {
+      color: #3b82f6;
+    }
+  </style>
 </head>
 <body>
   <div class="dashboard-wrapper">
@@ -166,15 +272,26 @@
                     <i class="fas fa-user"></i>
                     Select Patient *
                   </label>
-                  <select id="client" name="client_id" required>
-                    <option value="">Choose a patient...</option>
-                    <% clients.forEach(client => { %>
-                      <option value="<%= client.id %>" <%= (typeof formData !== 'undefined' && formData.client_id == client.id) ? 'selected' : '' %>>
-                        <%= client.name %> - <%= client.email %>
-                      </option>
-                    <% }) %>
-                  </select>
-                  <small class="form-help">Select the patient for this appointment</small>
+                  <div class="searchable-select-container">
+                    <input type="text" id="clientSearch" class="searchable-select-input" 
+                           placeholder="Search for a patient..." autocomplete="off">
+                    <div class="searchable-select-dropdown" id="clientDropdown">
+                      <div class="dropdown-option" data-value="">Select a patient...</div>
+                      <% clients.forEach(client => { %>
+                        <div class="dropdown-option" data-value="<%= client.id %>" 
+                             data-name="<%= client.name %>" data-email="<%= client.email || '' %>"
+                             <%= (typeof formData !== 'undefined' && formData.client_id == client.id) ? 'data-selected="true"' : '' %>>
+                          <div class="client-info">
+                            <div class="client-name"><%= client.name %></div>
+                            <div class="client-email"><%= client.email || 'No email' %></div>
+                          </div>
+                        </div>
+                      <% }); %>
+                    </div>
+                    <input type="hidden" id="client" name="client_id" required>
+                    <i class="fas fa-chevron-down searchable-select-arrow"></i>
+                  </div>
+                  <small class="form-help">Search and select the patient for this appointment</small>
                 </div>
 
                 <div class="form-group">
@@ -305,7 +422,6 @@
       const dateParam = urlParams.get('date');
       const clientParam = urlParams.get('client_id');
       const datetimeInput = document.getElementById('datetime');
-      const clientSelect = document.getElementById('client');
       
       if (dateParam && !datetimeInput.value) {
         // Set the date part, default time to 9:00 AM
@@ -316,14 +432,141 @@
       }
 
       // Pre-select client if coming from client page
-      if (clientParam && clientSelect) {
-        clientSelect.value = clientParam;
-        clientSelect.parentElement.classList.add('has-value');
+      if (clientParam) {
+        const clientOption = document.querySelector(`[data-value="${clientParam}"]`);
+        if (clientOption) {
+          const clientName = clientOption.dataset.name;
+          const clientEmail = clientOption.dataset.email;
+          const input = document.getElementById('clientSearch');
+          const hiddenInput = document.getElementById('client');
+          
+          input.value = `${clientName} - ${clientEmail}`;
+          hiddenInput.value = clientParam;
+          clientOption.classList.add('selected');
+          input.parentElement.classList.add('has-value');
+        }
       }
+
+      // Initialize searchable select functionality
+      initializeSearchableSelect();
 
       // Add entrance animation
       document.querySelector('.form-container').style.animation = 'slideInUp 0.6s ease-out';
     });
+
+    // Searchable Select Functionality
+    function initializeSearchableSelect() {
+      const container = document.querySelector('.searchable-select-container');
+      const input = document.getElementById('clientSearch');
+      const dropdown = document.getElementById('clientDropdown');
+      const hiddenInput = document.getElementById('client');
+      const options = dropdown.querySelectorAll('.dropdown-option');
+      
+      let isOpen = false;
+      
+      // Check for pre-selected value
+      const preSelected = dropdown.querySelector('[data-selected="true"]');
+      if (preSelected) {
+        const clientName = preSelected.dataset.name;
+        const clientEmail = preSelected.dataset.email;
+        input.value = `${clientName} - ${clientEmail}`;
+        hiddenInput.value = preSelected.dataset.value;
+        preSelected.classList.add('selected');
+      }
+      
+      // Toggle dropdown
+      function toggleDropdown() {
+        isOpen = !isOpen;
+        container.classList.toggle('open', isOpen);
+        if (isOpen) {
+          input.focus();
+          filterOptions('');
+        }
+      }
+      
+      // Close dropdown
+      function closeDropdown() {
+        isOpen = false;
+        container.classList.remove('open');
+      }
+      
+      // Filter options based on search
+      function filterOptions(searchTerm) {
+        const term = searchTerm.toLowerCase();
+        options.forEach(option => {
+          if (option.dataset.value === '') {
+            option.classList.remove('hidden');
+            return;
+          }
+          
+          const name = option.dataset.name.toLowerCase();
+          const email = option.dataset.email.toLowerCase();
+          
+          if (name.includes(term) || email.includes(term)) {
+            option.classList.remove('hidden');
+          } else {
+            option.classList.add('hidden');
+          }
+        });
+      }
+      
+      // Select option
+      function selectOption(option) {
+        // Clear previous selection
+        options.forEach(opt => opt.classList.remove('selected'));
+        
+        if (option.dataset.value === '') {
+          input.value = '';
+          hiddenInput.value = '';
+        } else {
+          const clientName = option.dataset.name;
+          const clientEmail = option.dataset.email;
+          input.value = `${clientName} - ${clientEmail}`;
+          hiddenInput.value = option.dataset.value;
+          option.classList.add('selected');
+        }
+        
+        closeDropdown();
+      }
+      
+      // Event listeners
+      input.addEventListener('click', toggleDropdown);
+      input.addEventListener('input', (e) => {
+        if (!isOpen) toggleDropdown();
+        filterOptions(e.target.value);
+      });
+      
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeDropdown();
+        } else if (e.key === 'ArrowDown' && isOpen) {
+          e.preventDefault();
+          const visibleOptions = Array.from(options).filter(opt => !opt.classList.contains('hidden'));
+          if (visibleOptions.length > 0) {
+            visibleOptions[0].focus();
+          }
+        }
+      });
+      
+      // Option click handlers
+      options.forEach(option => {
+        option.addEventListener('click', () => selectOption(option));
+        
+        option.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectOption(option);
+          }
+        });
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+          closeDropdown();
+        }
+      });
+    }
   </script>
 </body>
 </html> 

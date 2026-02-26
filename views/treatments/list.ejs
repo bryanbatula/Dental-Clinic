@@ -267,7 +267,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% treatments.forEach((treatment, index) => { %>
+                                <% treatments.sort((a, b) => (a.client_name || '').localeCompare(b.client_name || '')).forEach((treatment, index) => { %>
                                     <tr class="treatment-row <%= treatment.balance > 0 ? 'has-balance' : 'paid' %>" style="animation: slideInUp 0.3s ease-out <%= index * 0.05 %>s both;">
                                         <td class="date-cell">
                                             <div class="date-display">

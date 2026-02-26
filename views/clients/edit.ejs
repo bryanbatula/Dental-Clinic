@@ -231,6 +231,156 @@
                   <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes about the patient (preferences, special instructions, etc.)"><%= client.notes || '' %></textarea>
                 </div>
               </div>
+
+              <!-- Dental Chart Section -->
+              <div class="form-section-group">
+                <h3 class="section-group-title">
+                  <i class="fas fa-tooth"></i>
+                  Dental Chart
+                </h3>
+                
+                <!-- Treatment Legend -->
+                <div class="treatment-legend">
+                  <div class="legend-item" data-treatment="C">
+                    <span class="legend-symbol c">C</span>
+                    <span>Indicated for Filling</span>
+                  </div>
+                  <div class="legend-item" data-treatment="II">
+                    <span class="legend-symbol ii">II</span>
+                    <span>Indicated for Extraction</span>
+                  </div>
+                  <div class="legend-item" data-treatment="X">
+                    <span class="legend-symbol x">X</span>
+                    <span>Missing Tooth</span>
+                  </div>
+                  <div class="legend-item" data-treatment="LC">
+                    <span class="legend-symbol lc">LC</span>
+                    <span>Composite Filling</span>
+                  </div>
+                  <div class="legend-item" data-treatment="AM">
+                    <span class="legend-symbol am">AM</span>
+                    <span>Amalgam Filling</span>
+                  </div>
+                  <div class="legend-item" data-treatment="Se">
+                    <span class="legend-symbol se">Se</span>
+                    <span>Sealants</span>
+                  </div>
+                  <div class="legend-item" data-treatment="IMO">
+                    <span class="legend-symbol imo">IMO</span>
+                    <span>Impacted Tooth</span>
+                  </div>
+                  <div class="legend-item" data-treatment="FB">
+                    <span class="legend-symbol fb">FB</span>
+                    <span>Fixed Bridge Crown</span>
+                  </div>
+                  <div class="legend-item" data-treatment="JC">
+                    <span class="legend-symbol jc">JC</span>
+                    <span>Jacket Crown</span>
+                  </div>
+                  <div class="legend-item" data-treatment="PM">
+                    <span class="legend-symbol pm">PM</span>
+                    <span>Removable Denture</span>
+                  </div>
+                </div>
+
+                <!-- Dental Chart -->
+                <div class="dental-chart">
+                  <!-- Upper Baby Teeth -->
+                  <div class="teeth-row upper-baby">
+                    <div class="teeth-numbers">
+                      <span>55</span><span>54</span><span>53</span><span>52</span><span>51</span>
+                      <span>61</span><span>62</span><span>63</span><span>64</span><span>65</span>
+                    </div>
+                    <div class="teeth-visual">
+                      <div class="tooth" data-number="55"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="54"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="53"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="52"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="51"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="61"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="62"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="63"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="64"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="65"><div class="tooth-circle"></div></div>
+                    </div>
+                  </div>
+
+                  <!-- Adult Upper Teeth -->
+                  <div class="teeth-row adult-upper">
+                    <div class="teeth-numbers">
+                      <span>18</span><span>17</span><span>16</span><span>15</span><span>14</span><span>13</span><span>12</span><span>11</span>
+                      <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span>
+                    </div>
+                    <div class="teeth-visual">
+                      <div class="tooth" data-number="18"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="17"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="16"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="15"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="14"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="13"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="12"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="11"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="21"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="22"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="23"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="24"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="25"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="26"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="27"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="28"><div class="tooth-circle"></div></div>
+                    </div>
+                  </div>
+
+                  <!-- Adult Lower Teeth -->
+                  <div class="teeth-row adult-lower">
+                    <div class="teeth-visual">
+                      <div class="tooth" data-number="48"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="47"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="46"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="45"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="44"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="43"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="42"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="41"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="31"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="32"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="33"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="34"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="35"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="36"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="37"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="38"><div class="tooth-circle"></div></div>
+                    </div>
+                    <div class="teeth-numbers">
+                      <span>48</span><span>47</span><span>46</span><span>45</span><span>44</span><span>43</span><span>42</span><span>41</span>
+                      <span>31</span><span>32</span><span>33</span><span>34</span><span>35</span><span>36</span><span>37</span><span>38</span>
+                    </div>
+                  </div>
+
+                  <!-- Lower Baby Teeth -->
+                  <div class="teeth-row lower-baby">
+                    <div class="teeth-visual">
+                      <div class="tooth" data-number="85"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="84"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="83"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="82"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="81"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="71"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="72"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="73"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="74"><div class="tooth-circle"></div></div>
+                      <div class="tooth" data-number="75"><div class="tooth-circle"></div></div>
+                    </div>
+                    <div class="teeth-numbers">
+                      <span>85</span><span>84</span><span>83</span><span>82</span><span>81</span>
+                      <span>71</span><span>72</span><span>73</span><span>74</span><span>75</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hidden field to store dental chart data -->
+                <input type="hidden" id="dentalChartData" name="dentalChart" value="<%= client.dental_chart || '{}' %>">
+              </div>
             </div>
 
             <!-- Form Actions -->
@@ -303,6 +453,60 @@
 
       // Add entrance animation
       document.querySelector('.form-container').style.animation = 'slideInUp 0.6s ease-out';
+
+      // Dental Chart Functionality
+      let dentalChart = {};
+      try {
+        dentalChart = JSON.parse(document.getElementById('dentalChartData').value || '{}');
+      } catch (e) {
+        dentalChart = {};
+      }
+      
+      let currentTreatment = 'C';
+      
+      // Treatment selector
+      document.querySelectorAll('.legend-item').forEach(item => {
+        item.addEventListener('click', function() {
+          document.querySelectorAll('.legend-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          currentTreatment = this.dataset.treatment;
+        });
+      });
+      
+      // Set default treatment
+      document.querySelector('.legend-item').classList.add('active');
+      
+      // Load existing dental chart data
+      Object.keys(dentalChart).forEach(toothNumber => {
+        const toothElement = document.querySelector(`[data-number="${toothNumber}"] .tooth-circle`);
+        if (toothElement) {
+          toothElement.classList.add('marked');
+          toothElement.textContent = dentalChart[toothNumber];
+        }
+      });
+      
+      // Tooth click functionality
+      document.querySelectorAll('.tooth-circle').forEach(circle => {
+        circle.addEventListener('click', function() {
+          const tooth = this.parentElement;
+          const toothNumber = tooth.dataset.number;
+          
+          if (dentalChart[toothNumber] === currentTreatment) {
+            // Remove treatment if clicking the same treatment
+            delete dentalChart[toothNumber];
+            this.classList.remove('marked');
+            this.textContent = '';
+          } else {
+            // Apply new treatment
+            dentalChart[toothNumber] = currentTreatment;
+            this.classList.add('marked');
+            this.textContent = currentTreatment;
+          }
+          
+          // Update hidden field
+          document.getElementById('dentalChartData').value = JSON.stringify(dentalChart);
+        });
+      });
     });
   </script>
 </body>

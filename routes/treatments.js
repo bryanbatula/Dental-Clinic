@@ -140,38 +140,81 @@ router.post('/payment/:id', async (req, res) => {
     
     // Validate payment amount
     if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Payment amount must be a valid number greater than 0'
-      });
+      const errorMessage = 'Payment amount must be a valid number greater than 0';
+      
+      // Check if this is an AJAX request or form submission
+      if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+        return res.status(400).json({
+          success: false,
+          message: errorMessage
+        });
+      } else {
+        // Form submission - redirect back with error
+        const treatment = await Treatment.getById(req.params.id);
+        return res.render('treatments/view', {
+          title: 'Treatment Details',
+          treatment,
+          error: errorMessage,
+          user: req.session.user
+        });
+      }
     }
     
     // Validate treatment ID
     const treatmentId = parseInt(req.params.id);
     if (!treatmentId || isNaN(treatmentId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid treatment record ID'
-      });
+      const errorMessage = 'Invalid treatment record ID';
+      
+      if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+        return res.status(400).json({
+          success: false,
+          message: errorMessage
+        });
+      } else {
+        return res.redirect('/treatments');
+      }
     }
     
     // Process the payment
     const updatedTreatment = await Treatment.addPayment(treatmentId, parseFloat(amount), notes || null);
     
-    // Return success response
-    res.json({
-      success: true,
-      message: 'Payment processed successfully',
-      treatment: updatedTreatment
-    });
+    // Check if this is an AJAX request or form submission
+    if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+      // AJAX request - return JSON
+      res.json({
+        success: true,
+        message: 'Payment processed successfully',
+        treatment: updatedTreatment
+      });
+    } else {
+      // Form submission - redirect to treatment view
+      res.redirect(`/treatments/view/${treatmentId}`);
+    }
     
   } catch (error) {
     console.error('Error adding payment:', error);
     
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Failed to process payment. Please try again.'
-    });
+    const errorMessage = error.message || 'Failed to process payment. Please try again.';
+    
+    if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+      res.status(500).json({
+        success: false,
+        message: errorMessage
+      });
+    } else {
+      // Form submission - render view with error
+      try {
+        const treatment = await Treatment.getById(req.params.id);
+        res.render('treatments/view', {
+          title: 'Treatment Details',
+          treatment,
+          error: errorMessage,
+          user: req.session.user
+        });
+      } catch (viewError) {
+        res.redirect('/treatments');
+      }
+    }
   }
 });
 

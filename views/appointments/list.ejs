@@ -258,7 +258,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% appointments.forEach((appointment, index) => { %>
+                <% appointments.sort((a, b) => (a.client_name || '').localeCompare(b.client_name || '')).forEach((appointment, index) => { %>
                   <tr class="appointment-row" style="animation: slideInUp 0.3s ease-out <%= index * 0.05 %>s both;">
                     <td class="datetime-info">
                       <div class="date-display">

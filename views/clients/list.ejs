@@ -253,7 +253,7 @@
                 </tr>
               </thead>
               <tbody>
-                <% clients.forEach((client, index) => { %>
+                <% clients.sort((a, b) => a.name.localeCompare(b.name)).forEach((client, index) => { %>
                   <tr class="client-row" data-index="<%= index %>">
                     <td class="client-info">
                       <div class="client-profile">

@@ -4,9 +4,9 @@ async function updateUsername() {
   try {
     const result = await pool.query(
       'UPDATE users SET username = $1 WHERE username = $2',
-      ['DINDENTAL', 'admin']
+      ['DENTAL', 'DENTAL CLINIC']
     );
-    console.log('Username updated successfully from "admin" to "DINDENTAL"');
+    console.log('Username updated successfully from "DENTAL CLINIC" to "DENTAL"');
     console.log(`${result.rowCount} row(s) affected`);
   } catch (err) {
     console.error('Error updating username:', err);
