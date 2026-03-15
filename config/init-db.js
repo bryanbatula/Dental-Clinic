@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const migrations = [
+  '000_base_schema.sql',
   '001_create_services.sql',
   '002_add_analytics_columns.sql',
   '003_add_dental_chart.sql',

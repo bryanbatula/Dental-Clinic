@@ -1,12 +1,9 @@
--- Drop the table if it exists and cascade to remove dependencies
-DROP TABLE IF EXISTS services CASCADE;
-
--- Create the services table
-CREATE TABLE services (
+-- Ensure services table exists with correct structure (safe for re-runs)
+CREATE TABLE IF NOT EXISTS services (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL UNIQUE,
   description TEXT,
-  duration INTEGER NOT NULL, -- duration in minutes
+  duration INTEGER NOT NULL,
   price DECIMAL(10,2) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
