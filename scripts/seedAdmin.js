@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const db = require('../config/db');
 
 async function seedAdmin() {
-  const username = 'DENTAL CLINIC';
+  const username = 'DINDENTAL';
   const password = 'admin123';
   const role = 'admin';
   const password_hash = await bcrypt.hash(password, 10);
